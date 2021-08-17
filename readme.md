@@ -1,5 +1,6 @@
-## bufchr
+# bufchr
 * Much of this library was referenced from https://github.com/BurntSushi/memchr source.
+* x64 simd support byte search in binary.
 
 ## bufchr vs memchr
 * memchr
