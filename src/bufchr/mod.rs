@@ -45,6 +45,26 @@ pub fn bufchr2(haystack: &[u8], needle0: u8, needle1: u8)
     fallback::bufchr(haystack, needle0)
 }
 
+
+#[inline]
+pub fn bufchr3(haystack: &[u8], needle0: u8, needle1: u8, needle2: u8) 
+        -> (Option<usize>, u32) {
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+    {
+        if _is_x86_feature_avx2() {
+            unsafe{
+                return avx::bufchr3(haystack, needle0, needle1, needle2);
+            }
+        }
+        else if _is_x86_feature_sse2() {
+            unsafe{
+                return sse2::bufchr3(haystack, needle0, needle1, needle2);
+            }
+        }
+    }
+    fallback::bufchr(haystack, needle0)
+}
+
 pub fn get_vector_size() -> usize {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     {
