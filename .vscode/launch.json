@@ -14,5 +14,13 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
         },
+        {
+            "name": "(OSX) debug",
+            "type": "lldb",
+            "request": "launch",
+            "program": "./target/debug/deps/bufchrbin",
+            "args": [],
+            "cwd": "${workspaceRoot}",
+        }
     ]
 }
