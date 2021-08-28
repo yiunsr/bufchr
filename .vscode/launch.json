@@ -14,5 +14,15 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
         },
+        {
+            "name": "benchmark debug",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "./target/debug/deps/bufchrbench-0850dc6d9cb4f4a2.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+        },
     ]
 }

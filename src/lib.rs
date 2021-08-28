@@ -1,4 +1,9 @@
-mod bufchr;
+pub use crate::bufchr::{
+    bufchr, bufchr2, bufchr3,
+    Bufchr, Bufchr2, Bufchr3,
+};
+
+pub mod bufchr;
 
 pub fn test_bufchr() {
     println!("======== Start test_bufchr ========");

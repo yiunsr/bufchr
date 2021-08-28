@@ -11,3 +11,11 @@ path = "src/lib.rs"
 [[bin]]
 name = "bufchrbin"
 path = "src/bin.rs"
+
+[[bench]]
+name = "bufchrbench"
+harness = false
+path = "benches/bench.rs"
+
+[dev-dependencies]
+bencher = "0.1.5"

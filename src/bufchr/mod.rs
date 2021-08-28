@@ -1,8 +1,9 @@
 #![feature(target_feature)]
 
-use crate::bufchr::iter::Bufchr;
+pub use self::iter::{Bufchr, Bufchr2, Bufchr3};
 
 pub mod iter;
+
 pub mod avx;
 pub mod sse2;
 pub mod fallback;
