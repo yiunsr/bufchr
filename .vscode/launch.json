@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "cl.exe debug",
+            "name": "(win)cl.exe debug",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "./target/debug/deps/bufchrbin.exe",
@@ -15,10 +15,20 @@
             "environment": [],
         },
         {
-            "name": "benchmark debug",
+            "name": "(win)benchmark debug",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "./target/debug/deps/bufchrbench-0850dc6d9cb4f4a2.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+        },
+        {
+            "name": "(win)test debug",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "./target/debug/deps/bufchr_tests-2b28cf553496752f.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
