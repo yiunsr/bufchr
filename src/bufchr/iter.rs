@@ -1,4 +1,8 @@
-use crate::{bufchr};
+use crate::bufchr;
+use crate::bufchr::CbBufchr;
+use crate::bufchr::CbBufchr2;
+use crate::bufchr::CbBufchr3;
+
 
 pub struct Bufchr<'a> {
     haystack: &'a [u8],
@@ -6,14 +10,16 @@ pub struct Bufchr<'a> {
     position: usize,
     cache: u32,
     vector_size: usize,
+    cb_bufchr: CbBufchr,
 }
 impl<'a> Bufchr<'a> {
     #[inline]
     pub fn new(haystack: &[u8], needle0: u8) -> Bufchr<'_> {
         let vector_size = bufchr::get_vector_size();
+        let cb_bufchr = bufchr::get_cb_bufchr();
         Bufchr {haystack: haystack, needle0: needle0,
             position: 0, cache: 0,
-            vector_size: vector_size }
+            vector_size: vector_size, cb_bufchr: cb_bufchr}
     }
 }
 impl<'a> Iterator for Bufchr<'a> {
@@ -46,7 +52,13 @@ impl<'a> Iterator for Bufchr<'a> {
             let haystack = self.haystack.as_ptr().add(align_pos);
             new_haystack = std::slice::from_raw_parts(haystack, haystack_len);
         }
-        let (position, cache) = bufchr::bufchr(new_haystack, self.needle0);
+        let position;
+        let cache;
+        unsafe{
+            let (position_, cache_) = (self.cb_bufchr)(new_haystack, self.needle0);
+            position = position_;
+            cache = cache_;
+        }
         self.cache = cache;
         self.position = align_pos + position.unwrap() + 1;
         // found_position
@@ -63,14 +75,16 @@ pub struct Bufchr2<'a> {
     position: usize,
     cache: u32,
     vector_size: usize,
+    cb_bufchr2: CbBufchr2,
 }
 impl<'a> Bufchr2<'a> {
     #[inline]
     pub fn new(haystack: &[u8], needle0: u8, needle1: u8) -> Bufchr2<'_> {
         let vector_size = bufchr::get_vector_size();
+        let cb_bufchr2 = bufchr::get_cb_bufchr2();
         Bufchr2 { haystack: haystack, needle0: needle0, needle1: needle1,
             position: 0, cache: 0,
-            vector_size: vector_size }
+            vector_size: vector_size, cb_bufchr2: cb_bufchr2 }
     }
 }
 impl<'a> Iterator for Bufchr2<'a> {
@@ -103,7 +117,13 @@ impl<'a> Iterator for Bufchr2<'a> {
             let haystack = self.haystack.as_ptr().add(align_pos);
             new_haystack = std::slice::from_raw_parts(haystack, haystack_len);
         }
-        let (position, cache) = bufchr::bufchr2(new_haystack, self.needle0, self.needle1);
+        let position;
+        let cache;
+        unsafe{
+            let (position_, cache_) = (self.cb_bufchr2)(new_haystack, self.needle0, self.needle1);
+            position = position_;
+            cache = cache_;
+        }
         self.cache = cache;
         self.position = align_pos + position.unwrap() + 1;
         //     found_position
@@ -111,7 +131,6 @@ impl<'a> Iterator for Bufchr2<'a> {
     }
 
 }
-
 
 pub struct Bufchr3<'a> {
     haystack: &'a [u8],
@@ -121,14 +140,16 @@ pub struct Bufchr3<'a> {
     position: usize,
     cache: u32,
     vector_size: usize,
+    cb_bufchr3: CbBufchr3,
 }
 impl<'a> Bufchr3<'a> {
     #[inline]
     pub fn new(haystack: &[u8], needle0: u8, needle1: u8, needle2: u8) -> Bufchr3<'_> {
         let vector_size = bufchr::get_vector_size();
+        let cb_bufchr3 = bufchr::get_cb_bufchr3();
         Bufchr3 { haystack: haystack, needle0: needle0, needle1: needle1,
             needle2: needle2, position: 0, cache: 0,
-            vector_size: vector_size }
+            vector_size: vector_size, cb_bufchr3: cb_bufchr3 }
     }
 }
 impl<'a> Iterator for Bufchr3<'a> {
@@ -161,8 +182,14 @@ impl<'a> Iterator for Bufchr3<'a> {
             let haystack = self.haystack.as_ptr().add(align_pos);
             new_haystack = std::slice::from_raw_parts(haystack, haystack_len);
         }
-        let (position, cache) = bufchr::bufchr3(
-            new_haystack, self.needle0, self.needle1, self.needle2);
+        let position;
+        let cache;
+        unsafe{
+            let (position_, cache_) = (self.cb_bufchr3)(
+                new_haystack, self.needle0, self.needle1, self.needle2);
+            position = position_;
+            cache = cache_;
+        }
         self.cache = cache;
         self.position = align_pos + position.unwrap() + 1;
         //     found_position

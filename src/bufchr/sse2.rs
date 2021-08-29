@@ -7,7 +7,6 @@ pub fn get_vector_size() -> usize {
     return VECTOR_SIZE;
 }
 
-#[target_feature(enable = "sse2")]
 pub unsafe fn bufchr(haystack: &[u8], n1: u8) -> (Option<usize>, u32) {
     let haystack_len = haystack.len();
     if haystack_len < VECTOR_SIZE {

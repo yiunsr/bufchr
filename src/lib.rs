@@ -1,6 +1,7 @@
 pub use crate::bufchr::{
     bufchr, bufchr2, bufchr3,
     Bufchr, Bufchr2, Bufchr3,
+    CbBufchr, CbBufchr2, CbBufchr3
 };
 
 pub mod bufchr;
@@ -29,7 +30,7 @@ pub fn test_bufchr() {
     println!("{}", no_4.unwrap() == 28);
     let no_5  = bf.next();
     println!("{}", no_5.unwrap() == 32);
-    let no_6  = bf.next();;
+    let no_6  = bf.next();
     println!("{}", no_6.unwrap() == 37);
     let no_7  = bf.next();
     println!("{}", no_7.unwrap() == 43);
