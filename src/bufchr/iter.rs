@@ -3,7 +3,6 @@ use crate::bufchr::CbBufchr;
 use crate::bufchr::CbBufchr2;
 use crate::bufchr::CbBufchr3;
 
-
 pub struct Bufchr<'a> {
     haystack: &'a [u8],
     needle0: u8,
@@ -17,6 +16,24 @@ impl<'a> Bufchr<'a> {
     pub fn new(haystack: &[u8], needle0: u8) -> Bufchr<'_> {
         let vector_size = bufchr::get_vector_size();
         let cb_bufchr = bufchr::get_cb_bufchr();
+        Bufchr {haystack: haystack, needle0: needle0,
+            position: 0, cache: 0,
+            vector_size: vector_size, cb_bufchr: cb_bufchr}
+    }
+
+    #[inline]
+    pub fn new_avx(haystack: &[u8], needle0: u8) -> Bufchr<'_> {
+        let vector_size = bufchr::avx::get_vector_size();
+        let cb_bufchr = bufchr::avx::bufchr;
+        Bufchr {haystack: haystack, needle0: needle0,
+            position: 0, cache: 0,
+            vector_size: vector_size, cb_bufchr: cb_bufchr}
+    }
+
+    #[inline]
+    pub fn new_sse2(haystack: &[u8], needle0: u8) -> Bufchr<'_> {
+        let vector_size = bufchr::sse2::get_vector_size();
+        let cb_bufchr = bufchr::sse2::bufchr;
         Bufchr {haystack: haystack, needle0: needle0,
             position: 0, cache: 0,
             vector_size: vector_size, cb_bufchr: cb_bufchr}
@@ -60,8 +77,14 @@ impl<'a> Iterator for Bufchr<'a> {
             cache = cache_;
         }
         self.cache = cache;
-        self.position = align_pos + position.unwrap() + 1;
-        // found_position
+        match position {
+            Some(pos) => {
+                self.position = align_pos + pos + 1;
+            }
+            None =>{
+                return None;
+            }
+        }
         Some(self.position)
     }
 
@@ -82,6 +105,24 @@ impl<'a> Bufchr2<'a> {
     pub fn new(haystack: &[u8], needle0: u8, needle1: u8) -> Bufchr2<'_> {
         let vector_size = bufchr::get_vector_size();
         let cb_bufchr2 = bufchr::get_cb_bufchr2();
+        Bufchr2 { haystack: haystack, needle0: needle0, needle1: needle1,
+            position: 0, cache: 0,
+            vector_size: vector_size, cb_bufchr2: cb_bufchr2 }
+    }
+
+    #[inline]
+    pub fn new_avx(haystack: &[u8], needle0: u8, needle1: u8) -> Bufchr2<'_> {
+        let vector_size = bufchr::avx::get_vector_size();
+        let cb_bufchr2 = bufchr::avx::bufchr2;
+        Bufchr2 { haystack: haystack, needle0: needle0, needle1: needle1,
+            position: 0, cache: 0,
+            vector_size: vector_size, cb_bufchr2: cb_bufchr2 }
+    }
+
+    #[inline]
+    pub fn new_sse2(haystack: &[u8], needle0: u8, needle1: u8) -> Bufchr2<'_> {
+        let vector_size = bufchr::sse2::get_vector_size();
+        let cb_bufchr2 = bufchr::sse2::bufchr2;
         Bufchr2 { haystack: haystack, needle0: needle0, needle1: needle1,
             position: 0, cache: 0,
             vector_size: vector_size, cb_bufchr2: cb_bufchr2 }
@@ -125,8 +166,14 @@ impl<'a> Iterator for Bufchr2<'a> {
             cache = cache_;
         }
         self.cache = cache;
-        self.position = align_pos + position.unwrap() + 1;
-        //     found_position
+        match position {
+            Some(pos) => {
+                self.position = align_pos + pos + 1;
+            }
+            None =>{
+                return None;
+            }
+        }
         Some(self.position)
     }
 
@@ -147,6 +194,24 @@ impl<'a> Bufchr3<'a> {
     pub fn new(haystack: &[u8], needle0: u8, needle1: u8, needle2: u8) -> Bufchr3<'_> {
         let vector_size = bufchr::get_vector_size();
         let cb_bufchr3 = bufchr::get_cb_bufchr3();
+        Bufchr3 { haystack: haystack, needle0: needle0, needle1: needle1,
+            needle2: needle2, position: 0, cache: 0,
+            vector_size: vector_size, cb_bufchr3: cb_bufchr3 }
+    }
+
+    #[inline]
+    pub fn new_avx(haystack: &[u8], needle0: u8, needle1: u8, needle2: u8) -> Bufchr3<'_> {
+        let vector_size = bufchr::avx::get_vector_size();
+        let cb_bufchr3 = bufchr::avx::bufchr3;
+        Bufchr3 { haystack: haystack, needle0: needle0, needle1: needle1,
+            needle2: needle2, position: 0, cache: 0,
+            vector_size: vector_size, cb_bufchr3: cb_bufchr3 }
+    }
+
+    #[inline]
+    pub fn new_sse2(haystack: &[u8], needle0: u8, needle1: u8, needle2: u8) -> Bufchr3<'_> {
+        let vector_size = bufchr::sse2::get_vector_size();
+        let cb_bufchr3 = bufchr::sse2::bufchr3;
         Bufchr3 { haystack: haystack, needle0: needle0, needle1: needle1,
             needle2: needle2, position: 0, cache: 0,
             vector_size: vector_size, cb_bufchr3: cb_bufchr3 }
@@ -191,8 +256,14 @@ impl<'a> Iterator for Bufchr3<'a> {
             cache = cache_;
         }
         self.cache = cache;
-        self.position = align_pos + position.unwrap() + 1;
-        //     found_position
+        match position {
+            Some(pos) => {
+                self.position = align_pos + pos + 1;
+            }
+            None =>{
+                return None;
+            }
+        }
         Some(self.position)
     }
 

@@ -13,7 +13,7 @@ pub unsafe fn bufchr(haystack: &[u8], n1: u8) -> (Option<usize>, u32) {
         return fallback::bufchr(haystack, n1);
     }
     let start_ptr = haystack.as_ptr();
-    let ptr = start_ptr;
+    let mut ptr = start_ptr;
     let end_ptr = start_ptr.add(haystack_len);
     let align_end_ptr = start_ptr.add((haystack_len / VECTOR_SIZE) * VECTOR_SIZE);
     let vn1 = _mm_set1_epi8(n1 as i8);
@@ -29,7 +29,7 @@ pub unsafe fn bufchr(haystack: &[u8], n1: u8) -> (Option<usize>, u32) {
             let cache = umask & !(1 << bit_pos);
             return (Some(sub(ptr, start_ptr) + bit_pos), cache);
         }
-        ptr.add(VECTOR_SIZE);
+        ptr = ptr.add(VECTOR_SIZE);
     }
 
     let rest_haystack = std::slice::from_raw_parts(
@@ -41,10 +41,10 @@ pub unsafe fn bufchr(haystack: &[u8], n1: u8) -> (Option<usize>, u32) {
 pub unsafe fn bufchr2(haystack: &[u8], n1: u8, n2: u8) -> (Option<usize>, u32) {
     let haystack_len = haystack.len();
     if haystack_len < VECTOR_SIZE {
-        return fallback::bufchr(haystack, n1);
+        return fallback::bufchr2(haystack, n1, n2);
     }
     let start_ptr = haystack.as_ptr();
-    let ptr = start_ptr;
+    let mut ptr = start_ptr;
     let end_ptr = start_ptr.add(haystack_len);
     let align_end_ptr = start_ptr.add((haystack_len / VECTOR_SIZE) * VECTOR_SIZE);
     let vn1 = _mm_set1_epi8(n1 as i8);
@@ -63,7 +63,7 @@ pub unsafe fn bufchr2(haystack: &[u8], n1: u8, n2: u8) -> (Option<usize>, u32) {
             let cache = umask & !(1 << bit_pos);
             return (Some(sub(ptr, start_ptr) + bit_pos), cache);
         }
-        ptr.add(VECTOR_SIZE);
+        ptr = ptr.add(VECTOR_SIZE);
     }
 
     let rest_haystack = std::slice::from_raw_parts(
@@ -75,10 +75,10 @@ pub unsafe fn bufchr2(haystack: &[u8], n1: u8, n2: u8) -> (Option<usize>, u32) {
 pub unsafe fn bufchr3(haystack: &[u8], n1: u8, n2: u8, n3: u8) -> (Option<usize>, u32) {
     let haystack_len = haystack.len();
     if haystack_len < VECTOR_SIZE {
-        return fallback::bufchr(haystack, n1);
+        return fallback::bufchr3(haystack, n1, n2, n3);
     }
     let start_ptr = haystack.as_ptr();
-    let ptr = start_ptr;
+    let mut ptr = start_ptr;
     let end_ptr = start_ptr.add(haystack_len);
     let align_end_ptr = start_ptr.add((haystack_len / VECTOR_SIZE) * VECTOR_SIZE);
     let vn1 = _mm_set1_epi8(n1 as i8);
@@ -99,7 +99,7 @@ pub unsafe fn bufchr3(haystack: &[u8], n1: u8, n2: u8, n3: u8) -> (Option<usize>
             let cache = umask & !(1 << bit_pos);
             return (Some(sub(ptr, start_ptr) + bit_pos), cache);
         }
-        ptr.add(VECTOR_SIZE);
+        ptr = ptr.add(VECTOR_SIZE);
     }
 
     let rest_haystack = std::slice::from_raw_parts(

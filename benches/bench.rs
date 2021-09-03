@@ -7,7 +7,7 @@ use bufchr;
 
 static CSV_HAYSTACK: &'static [u8] = include_bytes!("../data/gdp.csv");
 
-fn bench_bufchr(bench: &mut Bencher) {
+fn read_gdp_csv(bench: &mut Bencher) {
     bench.iter(|| {
         let needle = b',';
         let mut bf = bufchr::Bufchr::new(CSV_HAYSTACK, needle);
@@ -18,15 +18,32 @@ fn bench_bufchr(bench: &mut Bencher) {
     });
 }
 
-
-fn b(bench: &mut Bencher) {
-    const N: usize = 1024;
+fn read_gdp_csv2(bench: &mut Bencher) {
     bench.iter(|| {
-        vec![0u8; N]
+        let n1 = b',';
+        let n2 = b'"';
+        let mut bf = bufchr::Bufchr2::new(CSV_HAYSTACK, n1, n2);
+        loop {
+            let n = bf.next();
+            if n == None{break;}
+        }
     });
- 
-    bench.bytes = N as u64;
 }
 
-benchmark_group!(benches, bench_bufchr, b);
+fn read_gdp_csv3(bench: &mut Bencher) {
+    bench.iter(|| {
+        let n1 = b',';
+        let n2 = b'"';
+        let n3 = b'\n';
+        let mut bf = bufchr::Bufchr3::new(CSV_HAYSTACK, n1, n2, n3);
+        loop {
+            let n = bf.next();
+            if n == None{break;}
+        }
+    });
+}
+
+
+
+benchmark_group!(benches, read_gdp_csv, read_gdp_csv2, read_gdp_csv3);
 benchmark_main!(benches);

@@ -3,18 +3,14 @@
 pub use self::iter::{Bufchr, Bufchr2, Bufchr3};
 
 pub mod iter;
-
 pub mod avx;
 pub mod sse2;
 pub mod fallback;
 
-
 pub type CbBufchr = unsafe fn(haystack: &[u8], n1: u8) -> (Option<usize>, u32);
 pub type CbBufchr2 = unsafe fn(haystack: &[u8], n1: u8, n2: u8) -> (Option<usize>, u32);
 pub type CbBufchr3 = unsafe fn(haystack: &[u8], n1: u8, n2: u8, n3:u8) -> (Option<usize>, u32);
-// pub mod CbBufchr;
-// pub mod CbBufchr2;
-// pub mod CbBufchr3;
+
 
 #[inline]
 pub fn bufchr(haystack: &[u8], needle: u8) 

@@ -15,12 +15,11 @@ pub unsafe fn bufchr(haystack: &[u8], n1: u8) -> (Option<usize>, u32) {
         return fallback::bufchr(haystack, n1);
     }
     let start_ptr = haystack.as_ptr();
-    let ptr = start_ptr;
-    let end_ptr = start_ptr.add(haystack_len);
-    let align_end_ptr = start_ptr.add((haystack_len / VECTOR_SIZE) * VECTOR_SIZE);
+    let mut ptr = haystack.as_ptr();
+    let vector_end_ptr = start_ptr.add((haystack_len / VECTOR_SIZE) * VECTOR_SIZE);
     let vn1 = _mm256_set1_epi8(n1 as i8);
 
-    while ptr < end_ptr{
+    while ptr < vector_end_ptr{
         let chunk = _mm256_loadu_si256(ptr as *const __m256i);
         let mask = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1));
         if mask != 0 {
@@ -29,11 +28,11 @@ pub unsafe fn bufchr(haystack: &[u8], n1: u8) -> (Option<usize>, u32) {
             let cache = umask & !(1 << bit_pos);
             return (Some(sub(ptr, start_ptr) + bit_pos), cache);
         }
-        ptr.add(VECTOR_SIZE);
+        ptr = ptr.add(VECTOR_SIZE);
     }
 
     let rest_haystack = std::slice::from_raw_parts(
-        align_end_ptr, haystack_len % VECTOR_SIZE);
+        vector_end_ptr, haystack_len % VECTOR_SIZE);
     fallback::bufchr(rest_haystack, n1)
 }
 
@@ -43,13 +42,12 @@ pub unsafe fn bufchr2(haystack: &[u8], n1: u8, n2: u8) -> (Option<usize>, u32) {
         return fallback::bufchr2(haystack, n1, n2);
     }
     let start_ptr = haystack.as_ptr();
-    let ptr = start_ptr;
-    let end_ptr = start_ptr.add(haystack_len);
-    let align_end_ptr = start_ptr.add((haystack_len / VECTOR_SIZE) * VECTOR_SIZE);
+    let mut ptr = start_ptr;
+    let vector_end_ptr = start_ptr.add((haystack_len / VECTOR_SIZE) * VECTOR_SIZE);
     let vn1 = _mm256_set1_epi8(n1 as i8);
     let vn2 = _mm256_set1_epi8(n2 as i8);
 
-    while ptr < end_ptr{
+    while ptr < vector_end_ptr{
         let chunk = _mm256_loadu_si256(ptr as *const __m256i);
         let eq1 = _mm256_cmpeq_epi8(chunk, vn1);
         let eq2 = _mm256_cmpeq_epi8(chunk, vn2);
@@ -62,28 +60,27 @@ pub unsafe fn bufchr2(haystack: &[u8], n1: u8, n2: u8) -> (Option<usize>, u32) {
             let cache = umask & !(1 << bit_pos);
             return (Some(sub(ptr, start_ptr) + bit_pos), cache);
         }
-        ptr.add(VECTOR_SIZE);
+        ptr = ptr.add(VECTOR_SIZE);
     }
 
     let rest_haystack = std::slice::from_raw_parts(
-        align_end_ptr, haystack_len % VECTOR_SIZE);
+        vector_end_ptr, haystack_len % VECTOR_SIZE);
     fallback::bufchr2(rest_haystack, n1, n2)
 }
 
 pub unsafe fn bufchr3(haystack: &[u8], n1: u8, n2: u8, n3: u8) -> (Option<usize>, u32) {
     let haystack_len = haystack.len();
     if haystack_len < VECTOR_SIZE {
-        return fallback::bufchr2(haystack, n1, n2);
+        return fallback::bufchr3(haystack, n1, n2, n3);
     }
     let start_ptr = haystack.as_ptr();
-    let ptr = start_ptr;
-    let end_ptr = start_ptr.add(haystack_len);
-    let align_end_ptr = start_ptr.add((haystack_len / VECTOR_SIZE) * VECTOR_SIZE);
+    let mut ptr = start_ptr;
+    let vector_end_ptr = start_ptr.add((haystack_len / VECTOR_SIZE) * VECTOR_SIZE);
     let vn1 = _mm256_set1_epi8(n1 as i8);
     let vn2 = _mm256_set1_epi8(n2 as i8);
     let vn3 = _mm256_set1_epi8(n3 as i8);
 
-    while ptr < end_ptr{
+    while ptr < vector_end_ptr{
         let chunk = _mm256_loadu_si256(ptr as *const __m256i);
         let eq1 = _mm256_cmpeq_epi8(chunk, vn1);
         let eq2 = _mm256_cmpeq_epi8(chunk, vn2);
@@ -98,11 +95,11 @@ pub unsafe fn bufchr3(haystack: &[u8], n1: u8, n2: u8, n3: u8) -> (Option<usize>
             let cache = umask & !(1 << bit_pos);
             return (Some(sub(ptr, start_ptr) + bit_pos), cache);
         }
-        ptr.add(VECTOR_SIZE);
+        ptr = ptr.add(VECTOR_SIZE);
     }
 
     let rest_haystack = std::slice::from_raw_parts(
-        align_end_ptr, haystack_len % VECTOR_SIZE);
+        vector_end_ptr, haystack_len % VECTOR_SIZE);
     fallback::bufchr2(rest_haystack, n1, n2)
 }
 
