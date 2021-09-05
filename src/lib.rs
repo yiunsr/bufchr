@@ -1,11 +1,42 @@
+/*!
+This library uses simd instuction to quickly find one byte in a string repeatedly.
+
+# Overview
+ The bufchr was created by referring to the code of [memchr](https://github.com/BurntSushi/memchr).
+It is faster than memchr in very special cases.
+It works efficiently when needle is repeatedly appeared in a smaller place than the vector size (avx is 32 bytes, sse2 is 16 bytes).
+When using simd operation, it is possible to calculate whether there is a specific byte in a vector at once.
+In the case of memchr, the calculated result is not reused, but in the case of bufchr, the calculated result is used when searching again next time.
+<br><br>
+ The bufchr is a library developed to make simd csv parser [ss-csv](https://github.com/yiunsr/ss-csv). 
+Like a csv file, it is necessary to repeatedly find specific characters (comma, quotation marks, line feed), and it works efficiently when there are several needles within 16 bytes or 32 bytes.
+<br><br>
+ Currently, only the simd operation of Intel CPU is supported. Only when supporting sse2 or avx can you expect a speedup. In other systems, it operates as a simple search.
+
+ # Example: bufchr
+
+ ```
+let haystack = b"a1,b11,c111";
+let needle = b',';
+let mut bf = Bufchr::new(haystack, needle);
+assert_eq!(bf.next(), Some(3));
+assert_eq!(bf.next(), Some(7));
+assert_eq!(bf.next(), None);
+
+ ```
+
+*/
+
+#[doc(hidden)]
+pub use crate::bufchr::{bufchr, bufchr2, bufchr3, CbBufchr, CbBufchr2, CbBufchr3};
+
 pub use crate::bufchr::{
-    bufchr, bufchr2, bufchr3,
     Bufchr, Bufchr2, Bufchr3,
-    CbBufchr, CbBufchr2, CbBufchr3
 };
 
 pub mod bufchr;
 
+#[doc(hidden)]
 pub fn test_bufchr() {
     println!("======== Start test_bufchr ========");
     let haystack = b"a1,b11,c111,d1111,e11111\n\
@@ -56,7 +87,7 @@ pub fn test_bufchr() {
     println!("======== End ========");
 }
 
-
+#[doc(hidden)]
 pub fn test_bufchr2() {
     println!("======== Start test_bufchr2 ========");
     let haystack = b"a1,b11,c111,d1111,e11111\n\
@@ -116,6 +147,7 @@ pub fn test_bufchr2() {
     println!("======== End ========");
 }
 
+#[doc(hidden)]
 pub fn test_bufchr3() {
     println!("======== Start test_bufchr2 ========");
     let haystack = b"a1,b11,\"c1\",d1111,e11111\n\

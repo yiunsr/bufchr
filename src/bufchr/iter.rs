@@ -3,6 +3,8 @@ use crate::bufchr::CbBufchr;
 use crate::bufchr::CbBufchr2;
 use crate::bufchr::CbBufchr3;
 
+
+/// struct used when there is only one needle
 pub struct Bufchr<'a> {
     haystack: &'a [u8],
     needle0: u8,
@@ -12,6 +14,7 @@ pub struct Bufchr<'a> {
     cb_bufchr: CbBufchr,
 }
 impl<'a> Bufchr<'a> {
+    /// Needle is what you are trying to find and the location you are looking for is haystack.
     #[inline]
     pub fn new(haystack: &[u8], needle0: u8) -> Bufchr<'_> {
         let vector_size = bufchr::get_vector_size();
@@ -21,6 +24,7 @@ impl<'a> Bufchr<'a> {
             vector_size: vector_size, cb_bufchr: cb_bufchr}
     }
 
+    #[doc(hidden)]
     #[inline]
     pub fn new_avx(haystack: &[u8], needle0: u8) -> Bufchr<'_> {
         let vector_size = bufchr::avx::get_vector_size();
@@ -30,6 +34,7 @@ impl<'a> Bufchr<'a> {
             vector_size: vector_size, cb_bufchr: cb_bufchr}
     }
 
+    #[doc(hidden)]
     #[inline]
     pub fn new_sse2(haystack: &[u8], needle0: u8) -> Bufchr<'_> {
         let vector_size = bufchr::sse2::get_vector_size();
@@ -42,6 +47,7 @@ impl<'a> Bufchr<'a> {
 impl<'a> Iterator for Bufchr<'a> {
     type Item = usize;
 
+    /// The needle position is returned. If there is no needle, None is returned.
     #[inline]
     fn next(&mut self) -> Option<usize> {
         if self.cache != 0 {
@@ -90,7 +96,7 @@ impl<'a> Iterator for Bufchr<'a> {
 
 }
 
-
+/// struct used when there are two needles
 pub struct Bufchr2<'a> {
     haystack: &'a [u8],
     needle0: u8,
@@ -101,6 +107,7 @@ pub struct Bufchr2<'a> {
     cb_bufchr2: CbBufchr2,
 }
 impl<'a> Bufchr2<'a> {
+    /// needle0, needle1 are what you are trying to find and the location you are looking for is haystack.
     #[inline]
     pub fn new(haystack: &[u8], needle0: u8, needle1: u8) -> Bufchr2<'_> {
         let vector_size = bufchr::get_vector_size();
@@ -110,6 +117,7 @@ impl<'a> Bufchr2<'a> {
             vector_size: vector_size, cb_bufchr2: cb_bufchr2 }
     }
 
+    #[doc(hidden)]
     #[inline]
     pub fn new_avx(haystack: &[u8], needle0: u8, needle1: u8) -> Bufchr2<'_> {
         let vector_size = bufchr::avx::get_vector_size();
@@ -131,6 +139,7 @@ impl<'a> Bufchr2<'a> {
 impl<'a> Iterator for Bufchr2<'a> {
     type Item = usize;
 
+    /// The needle position is returned. If there is no needle, None is returned.
     #[inline]
     fn next(&mut self) -> Option<usize> {
         if self.cache != 0 {
@@ -179,6 +188,7 @@ impl<'a> Iterator for Bufchr2<'a> {
 
 }
 
+//// struct used when there are three needles
 pub struct Bufchr3<'a> {
     haystack: &'a [u8],
     needle0: u8,
@@ -190,6 +200,7 @@ pub struct Bufchr3<'a> {
     cb_bufchr3: CbBufchr3,
 }
 impl<'a> Bufchr3<'a> {
+    /// needle0, needle1, needle2 are what you are trying to find and the location you are looking for is haystack.
     #[inline]
     pub fn new(haystack: &[u8], needle0: u8, needle1: u8, needle2: u8) -> Bufchr3<'_> {
         let vector_size = bufchr::get_vector_size();
@@ -199,6 +210,7 @@ impl<'a> Bufchr3<'a> {
             vector_size: vector_size, cb_bufchr3: cb_bufchr3 }
     }
 
+    #[doc(hidden)]
     #[inline]
     pub fn new_avx(haystack: &[u8], needle0: u8, needle1: u8, needle2: u8) -> Bufchr3<'_> {
         let vector_size = bufchr::avx::get_vector_size();
@@ -208,6 +220,7 @@ impl<'a> Bufchr3<'a> {
             vector_size: vector_size, cb_bufchr3: cb_bufchr3 }
     }
 
+    #[doc(hidden)]
     #[inline]
     pub fn new_sse2(haystack: &[u8], needle0: u8, needle1: u8, needle2: u8) -> Bufchr3<'_> {
         let vector_size = bufchr::sse2::get_vector_size();
@@ -220,6 +233,7 @@ impl<'a> Bufchr3<'a> {
 impl<'a> Iterator for Bufchr3<'a> {
     type Item = usize;
 
+    /// The needle position is returned. If there is no needle, None is returned.
     #[inline]
     fn next(&mut self) -> Option<usize> {
         if self.cache != 0 {

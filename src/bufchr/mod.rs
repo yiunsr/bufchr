@@ -1,17 +1,26 @@
 #![feature(target_feature)]
 
+#[doc(hidden)]
 pub use self::iter::{Bufchr, Bufchr2, Bufchr3};
 
+#[doc(hidden)]
 pub mod iter;
+#[doc(hidden)]
 pub mod avx;
+#[doc(hidden)]
 pub mod sse2;
+#[doc(hidden)]
 pub mod fallback;
 
+#[doc(hidden)]
 pub type CbBufchr = unsafe fn(haystack: &[u8], n1: u8) -> (Option<usize>, u32);
+#[doc(hidden)]
 pub type CbBufchr2 = unsafe fn(haystack: &[u8], n1: u8, n2: u8) -> (Option<usize>, u32);
+#[doc(hidden)]
 pub type CbBufchr3 = unsafe fn(haystack: &[u8], n1: u8, n2: u8, n3:u8) -> (Option<usize>, u32);
 
 
+#[doc(hidden)]
 #[inline]
 pub fn bufchr(haystack: &[u8], needle: u8) 
         -> (Option<usize>, u32) {
@@ -31,6 +40,7 @@ pub fn bufchr(haystack: &[u8], needle: u8)
     fallback::bufchr(haystack, needle)
 }
 
+#[doc(hidden)]
 pub fn get_cb_bufchr() -> CbBufchr{
     if is_x86_feature_detected!("avx2"){
         unsafe{
@@ -45,6 +55,7 @@ pub fn get_cb_bufchr() -> CbBufchr{
     fallback::bufchr
 }
 
+#[doc(hidden)]
 pub fn get_cb_bufchr2() -> CbBufchr2{
     if is_x86_feature_detected!("avx2"){
         unsafe{
