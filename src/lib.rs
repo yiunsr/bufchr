@@ -27,8 +27,8 @@ assert_eq!(bf.next(), None);
 
 */
 
-#[doc(hidden)]
-pub use crate::bufchr::{bufchr, bufchr2, bufchr3, CbBufchr, CbBufchr2, CbBufchr3};
+// #[doc(hidden)]
+// pub use crate::bufchr::{bufchr, bufchr2, bufchr3, CbBufchr, CbBufchr2, CbBufchr3};
 
 pub use crate::bufchr::{
     Bufchr, Bufchr2, Bufchr3,

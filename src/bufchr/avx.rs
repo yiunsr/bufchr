@@ -9,14 +9,13 @@ pub fn get_vector_size() -> usize {
     return VECTOR_SIZE;
 }
 
-pub unsafe fn bufchr(haystack: &[u8], n1: u8) -> (Option<usize>, u32) {
+pub unsafe fn bufchr(haystack: &[u8], n1: u8, vector_end_ptr: *const u8) -> (Option<usize>, u32) {
     let haystack_len = haystack.len();
     if haystack_len < VECTOR_SIZE {
-        return fallback::bufchr(haystack, n1);
+        return fallback::bufchr(haystack, n1, vector_end_ptr);
     }
     let start_ptr = haystack.as_ptr();
     let mut ptr = haystack.as_ptr();
-    let vector_end_ptr = start_ptr.add((haystack_len / VECTOR_SIZE) * VECTOR_SIZE);
     let vn1 = _mm256_set1_epi8(n1 as i8);
 
     while ptr < vector_end_ptr{
@@ -33,7 +32,7 @@ pub unsafe fn bufchr(haystack: &[u8], n1: u8) -> (Option<usize>, u32) {
 
     let rest_haystack = std::slice::from_raw_parts(
         vector_end_ptr, haystack_len % VECTOR_SIZE);
-    fallback::bufchr(rest_haystack, n1)
+    fallback::bufchr(rest_haystack, n1, vector_end_ptr)
 }
 
 pub unsafe fn bufchr2(haystack: &[u8], n1: u8, n2: u8) -> (Option<usize>, u32) {
@@ -104,7 +103,9 @@ pub unsafe fn bufchr3(haystack: &[u8], n1: u8, n2: u8, n3: u8) -> (Option<usize>
 }
 
 fn forward_pos(mask: u32) -> usize {
-    mask.trailing_zeros() as usize
+    unsafe{
+        _tzcnt_u32(mask) as usize
+     }
 }
 
 fn sub(a: *const u8, b: *const u8) -> usize {

@@ -1,5 +1,5 @@
 
-pub fn bufchr(haystack: &[u8], n1: u8) -> (Option<usize>, u32) {
+pub fn bufchr(haystack: &[u8], n1: u8, vector_end_ptr: *const u8) -> (Option<usize>, u32) {
     (haystack.iter().position(|&b| b == n1), 0)
 }
 

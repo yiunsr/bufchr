@@ -11,6 +11,7 @@ pub struct Bufchr<'a> {
     position: usize,
     cache: u32,
     vector_size: usize,
+    vector_end_ptr: *const u8,
     cb_bufchr: CbBufchr,
 }
 impl<'a> Bufchr<'a> {
@@ -19,9 +20,17 @@ impl<'a> Bufchr<'a> {
     pub fn new(haystack: &[u8], needle0: u8) -> Bufchr<'_> {
         let vector_size = bufchr::get_vector_size();
         let cb_bufchr = bufchr::get_cb_bufchr();
+
+        let haystack_len = haystack.len();
+        let start_ptr = haystack.as_ptr();
+        let vector_end_ptr = 
+            unsafe{
+                start_ptr.add((haystack_len / vector_size) * vector_size)
+            };
+
         Bufchr {haystack: haystack, needle0: needle0,
             position: 0, cache: 0,
-            vector_size: vector_size, cb_bufchr: cb_bufchr}
+            vector_size: vector_size, vector_end_ptr: vector_end_ptr, cb_bufchr: cb_bufchr}
     }
 
     #[doc(hidden)]
@@ -29,9 +38,15 @@ impl<'a> Bufchr<'a> {
     pub fn new_avx(haystack: &[u8], needle0: u8) -> Bufchr<'_> {
         let vector_size = bufchr::avx::get_vector_size();
         let cb_bufchr = bufchr::avx::bufchr;
+        let haystack_len = haystack.len();
+        let start_ptr = haystack.as_ptr();
+        let vector_end_ptr = 
+            unsafe{
+                start_ptr.add((haystack_len / vector_size) * vector_size)
+            };
         Bufchr {haystack: haystack, needle0: needle0,
             position: 0, cache: 0,
-            vector_size: vector_size, cb_bufchr: cb_bufchr}
+            vector_size: vector_size, vector_end_ptr: vector_end_ptr, cb_bufchr: cb_bufchr}
     }
 
     #[doc(hidden)]
@@ -39,13 +54,20 @@ impl<'a> Bufchr<'a> {
     pub fn new_sse2(haystack: &[u8], needle0: u8) -> Bufchr<'_> {
         let vector_size = bufchr::sse2::get_vector_size();
         let cb_bufchr = bufchr::sse2::bufchr;
+        let haystack_len = haystack.len();
+        let start_ptr = haystack.as_ptr();
+        let vector_end_ptr = 
+            unsafe{
+                start_ptr.add((haystack_len / vector_size) * vector_size)
+            };
         Bufchr {haystack: haystack, needle0: needle0,
             position: 0, cache: 0,
-            vector_size: vector_size, cb_bufchr: cb_bufchr}
+            vector_size: vector_size, vector_end_ptr: vector_end_ptr, cb_bufchr: cb_bufchr}
     }
 }
 impl<'a> Iterator for Bufchr<'a> {
     type Item = usize;
+    
 
     /// The needle position is returned. If there is no needle, None is returned.
     #[inline]
@@ -53,11 +75,9 @@ impl<'a> Iterator for Bufchr<'a> {
         if self.cache != 0 {
             let start_align_pos = (self.position / self.vector_size) * self.vector_size;
             let bit_pos = forward_pos(self.cache);
-            let cache = self.cache & !(1 << bit_pos);
-            self.cache = cache;
-            let new_position = start_align_pos + bit_pos + 1;
-            self.position = new_position;
-            return Some(new_position);
+            self.cache = self.cache & !(1 << bit_pos);
+            self.position = start_align_pos + bit_pos + 1;
+            return Some(self.position);
         }
         let align_pos;
         if self.position == 0 {
@@ -78,7 +98,7 @@ impl<'a> Iterator for Bufchr<'a> {
         let position;
         let cache;
         unsafe{
-            let (position_, cache_) = (self.cb_bufchr)(new_haystack, self.needle0);
+            let (position_, cache_) = (self.cb_bufchr)(new_haystack, self.needle0, self.vector_end_ptr);
             position = position_;
             cache = cache_;
         }

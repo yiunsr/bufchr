@@ -13,32 +13,32 @@ pub mod sse2;
 pub mod fallback;
 
 #[doc(hidden)]
-pub type CbBufchr = unsafe fn(haystack: &[u8], n1: u8) -> (Option<usize>, u32);
+pub type CbBufchr = unsafe fn(haystack: &[u8], n1: u8,  *const u8) -> (Option<usize>, u32);
 #[doc(hidden)]
 pub type CbBufchr2 = unsafe fn(haystack: &[u8], n1: u8, n2: u8) -> (Option<usize>, u32);
 #[doc(hidden)]
 pub type CbBufchr3 = unsafe fn(haystack: &[u8], n1: u8, n2: u8, n3:u8) -> (Option<usize>, u32);
 
 
-#[doc(hidden)]
-#[inline]
-pub fn bufchr(haystack: &[u8], needle: u8) 
-        -> (Option<usize>, u32) {
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    {
-        if is_x86_feature_detected!("avx2"){
-            unsafe{
-                return avx::bufchr(haystack, needle);
-            }
-        }
-        else if is_x86_feature_detected!("sse2") {
-            unsafe{
-                return sse2::bufchr(haystack, needle);
-            }
-        }
-    }
-    fallback::bufchr(haystack, needle)
-}
+// #[doc(hidden)]
+// #[inline]
+// pub fn bufchr(haystack: &[u8], needle: u8) 
+//         -> (Option<usize>, u32) {
+//     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+//     {
+//         if is_x86_feature_detected!("avx2"){
+//             unsafe{
+//                 return avx::bufchr(haystack, needle);
+//             }
+//         }
+//         else if is_x86_feature_detected!("sse2") {
+//             unsafe{
+//                 return sse2::bufchr(haystack, needle);
+//             }
+//         }
+//     }
+//     fallback::bufchr(haystack, needle)
+// }
 
 #[doc(hidden)]
 pub fn get_cb_bufchr() -> CbBufchr{
@@ -100,7 +100,7 @@ pub fn bufchr2(haystack: &[u8], needle0: u8, needle1: u8)
             }
         }
     }
-    fallback::bufchr(haystack, needle0)
+    fallback::bufchr2(haystack, needle0, needle1)
 }
 
 
@@ -120,7 +120,7 @@ pub fn bufchr3(haystack: &[u8], needle0: u8, needle1: u8, needle2: u8)
             }
         }
     }
-    fallback::bufchr(haystack, needle0)
+    fallback::bufchr3(haystack, needle0, needle1, needle2)
 }
 
 pub fn get_vector_size() -> usize {
