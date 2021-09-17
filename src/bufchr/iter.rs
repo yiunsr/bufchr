@@ -303,6 +303,7 @@ impl<'a> Iterator for Bufchr3<'a> {
 
 }
 
+#[inline]
 fn forward_pos(mask: u32) -> usize {
     mask.trailing_zeros() as usize
 }

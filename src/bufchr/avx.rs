@@ -105,17 +105,20 @@ pub unsafe fn bufchr3(haystack: &[u8], n1: u8, n2: u8, n3: u8) -> (Option<usize>
     fallback::bufchr2(rest_haystack, n1, n2)
 }
 
+#[inline]
 fn forward_pos(mask: u32) -> usize {
     unsafe{
         _tzcnt_u32(mask) as usize
      }
 }
 
+#[inline]
 fn sub(a: *const u8, b: *const u8) -> usize {
     debug_assert!(a >= b);
     (a as usize) - (b as usize)
 }
 
+#[inline]
 fn to_u32(i: i32) -> u32 {
     let x_bytes = i.to_be_bytes();   
     u32::from_be_bytes(x_bytes)
