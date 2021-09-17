@@ -9,6 +9,7 @@ pub fn get_vector_size() -> usize {
     return VECTOR_SIZE;
 }
 
+#[target_feature(enable = "avx")]
 pub unsafe fn bufchr(haystack: &[u8], n1: u8, vector_end_ptr: *const u8) -> (Option<usize>, u32) {
     let haystack_len = haystack.len();
     if haystack_len < VECTOR_SIZE {
@@ -35,6 +36,7 @@ pub unsafe fn bufchr(haystack: &[u8], n1: u8, vector_end_ptr: *const u8) -> (Opt
     fallback::bufchr(rest_haystack, n1, vector_end_ptr)
 }
 
+#[target_feature(enable = "avx")]
 pub unsafe fn bufchr2(haystack: &[u8], n1: u8, n2: u8) -> (Option<usize>, u32) {
     let haystack_len = haystack.len();
     if haystack_len < VECTOR_SIZE {
@@ -67,6 +69,7 @@ pub unsafe fn bufchr2(haystack: &[u8], n1: u8, n2: u8) -> (Option<usize>, u32) {
     fallback::bufchr2(rest_haystack, n1, n2)
 }
 
+#[target_feature(enable = "avx")]
 pub unsafe fn bufchr3(haystack: &[u8], n1: u8, n2: u8, n3: u8) -> (Option<usize>, u32) {
     let haystack_len = haystack.len();
     if haystack_len < VECTOR_SIZE {
