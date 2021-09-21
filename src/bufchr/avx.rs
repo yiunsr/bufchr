@@ -9,10 +9,6 @@ pub fn get_vector_size() -> usize {
     VECTOR_SIZE
 }
 
-pub fn get_batch_byte_size() -> usize {
-    BATCH_BYTE_SIZE
-}
-
 #[target_feature(enable = "avx")]
 pub unsafe fn bufchr(haystack: &[u8], n1: u8, vector_end_ptr: *const u8) -> (Option<usize>, u64) {
     let haystack_len = haystack.len();

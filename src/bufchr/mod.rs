@@ -64,29 +64,3 @@ pub fn get_cb_bufchr3() -> CbBufchr3{
     }
     fallback::bufchr3
 }
-
-pub fn get_vector_size() -> usize {
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    {
-        if is_x86_feature_detected!("avx2"){
-            return avx::get_vector_size();            
-        }
-        else if is_x86_feature_detected!("sse2") {
-            return sse2::get_vector_size();
-        }
-    }
-    fallback::get_vector_size()
-}
-
-pub fn get_batch_byte_size() -> usize {
-    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-    {
-        if is_x86_feature_detected!("avx2"){
-            return avx::get_batch_byte_size();            
-        }
-        else if is_x86_feature_detected!("sse2") {
-            return sse2::get_batch_byte_size();
-        }
-    }
-    fallback::get_batch_byte_size()
-}
