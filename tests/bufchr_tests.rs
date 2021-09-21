@@ -1,9 +1,12 @@
+
+
 #[cfg(test)]
 mod tests {
     use bufchr::{Bufchr, Bufchr2, Bufchr3};
     use super::*;
 
     static HAYSTACK_ISO_3166: &'static [u8] = include_bytes!("../data/test/ISO-3166-1.csv");
+    static TEST_01: &'static [u8] = include_bytes!("../data/test/test01.txt");
 
     #[test]
     fn test_0001_01_checkshort() {
@@ -206,6 +209,53 @@ mod tests {
         assert_eq!(bf.next(), Some(39));
         assert_eq!(bf.next(), Some(41));
         assert_eq!(bf.next(), Some(43));
+        assert_eq!(bf.next(), None);
+    }
+
+    #[test]
+    fn test_0004_01_no_needle_in_first_batch() {
+        let haystack = 
+            b"0123456789012345678901234567890123456789012345678901234567890123,5,\"\n9";
+        let n1 = b',';
+        let mut bf = Bufchr::new(haystack, n1);
+        assert_eq!(bf.next(), Some(65));
+        assert_eq!(bf.next(), Some(67));
+        assert_eq!(bf.next(), None);
+
+        let n2 = b'"';
+        let mut bf = Bufchr2::new(haystack, n1, n2);
+        assert_eq!(bf.next(), Some(65));
+        assert_eq!(bf.next(), Some(67));
+        assert_eq!(bf.next(), Some(68));
+        assert_eq!(bf.next(), None);
+
+        let n3 = b'\n';
+        let mut bf = Bufchr3::new(haystack, n1, n2, n3);
+        assert_eq!(bf.next(), Some(65));
+        assert_eq!(bf.next(), Some(67));
+        assert_eq!(bf.next(), Some(68));
+        assert_eq!(bf.next(), Some(69));
+        assert_eq!(bf.next(), None);
+    }
+
+    #[test]
+    fn test_0004_02_no_needle_in_first_batch() {
+        let n1 = b',';
+        let mut bf = Bufchr::new(TEST_01, n1);
+        assert_eq!(bf.next(), Some(129));
+        assert_eq!(bf.next(), None);
+
+        let n2 = b'"';
+        let mut bf = Bufchr2::new(TEST_01, n1, n2);
+        assert_eq!(bf.next(), Some(129));
+        assert_eq!(bf.next(), Some(130));
+        assert_eq!(bf.next(), None);
+
+        let n3 = b'\n';
+        let mut bf = Bufchr3::new(TEST_01, n1, n2, n3);
+        assert_eq!(bf.next(), Some(129));
+        assert_eq!(bf.next(), Some(130));
+        assert_eq!(bf.next(), Some(132));
         assert_eq!(bf.next(), None);
     }
 

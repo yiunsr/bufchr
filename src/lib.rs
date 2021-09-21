@@ -15,7 +15,7 @@ Like a csv file, it is necessary to repeatedly find specific characters (comma, 
 
  # Example: bufchr
 
- ```
+
 let haystack = b"a1,b11,c111";
 let needle = b',';
 let mut bf = Bufchr::new(haystack, needle);
@@ -23,7 +23,7 @@ assert_eq!(bf.next(), Some(3));
 assert_eq!(bf.next(), Some(7));
 assert_eq!(bf.next(), None);
 
- ```
+
 
 */
 
