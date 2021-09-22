@@ -10,8 +10,8 @@ pub struct Bufchr<'a> {
     haystack: &'a [u8],
     needle0: u8,
     position: usize,
+    align_pos: usize,
     cache: u64,
-    start_align_pos: usize,
     vector_end_ptr: *const u8,
     cb_bufchr: CbBufchr,
 }
@@ -30,7 +30,7 @@ impl<'a> Bufchr<'a> {
 
         Bufchr {haystack: haystack, needle0: needle0,
             position: 0, cache: 0, cb_bufchr: cb_bufchr,
-            start_align_pos: 0, vector_end_ptr: vector_end_ptr,
+            align_pos: 0, vector_end_ptr: vector_end_ptr,
         }
     }
 
@@ -46,7 +46,7 @@ impl<'a> Bufchr<'a> {
             };
             Bufchr {haystack: haystack, needle0: needle0,
                 position: 0, cache: 0, cb_bufchr: cb_bufchr,
-                start_align_pos: 0 ,vector_end_ptr: vector_end_ptr,
+                align_pos: 0 ,vector_end_ptr: vector_end_ptr,
             }
     }
 
@@ -62,7 +62,7 @@ impl<'a> Bufchr<'a> {
             };
         Bufchr {haystack: haystack, needle0: needle0,
             position: 0, cache: 0, cb_bufchr: cb_bufchr,
-            start_align_pos: 0 , vector_end_ptr: vector_end_ptr,
+            align_pos: 0 , vector_end_ptr: vector_end_ptr,
         }
     }
 }
@@ -76,7 +76,7 @@ impl<'a> Iterator for Bufchr<'a> {
             let bit_pos = self.cache.trailing_zeros() as usize;
             // Reset lowest set bit	
             self.cache = self.cache & (self.cache - 1);
-            self.position = self.start_align_pos + bit_pos + 1;
+            self.position = self.align_pos + bit_pos + 1;
             return Some(self.position);
         }
         let align_pos;
@@ -105,7 +105,7 @@ impl<'a> Iterator for Bufchr<'a> {
             Some(pos) => {
                 self.position = align_pos + pos + 1;
                 if self.cache != 0 {
-                    self.start_align_pos = get_vector_start_ptr(self.position);
+                    self.align_pos = get_align_pos(self.position);
                 }
             }
             None =>{
@@ -123,8 +123,8 @@ pub struct Bufchr2<'a> {
     needle0: u8,
     needle1: u8,
     position: usize,
+    align_pos: usize,
     cache: u64,
-    start_align_pos: usize,
     vector_end_ptr: *const u8,
     cb_bufchr2: CbBufchr2,
 }
@@ -141,7 +141,7 @@ impl<'a> Bufchr2<'a> {
             };
         Bufchr2 {haystack: haystack, needle0: needle0, needle1: needle1,
             position: 0, cache: 0, cb_bufchr2: cb_bufchr2,
-            start_align_pos: 0 , vector_end_ptr: vector_end_ptr,
+            align_pos: 0 , vector_end_ptr: vector_end_ptr,
         }
     }
 
@@ -157,7 +157,7 @@ impl<'a> Bufchr2<'a> {
             };
         Bufchr2 {haystack: haystack, needle0: needle0, needle1: needle1,
             position: 0, cache: 0, cb_bufchr2: cb_bufchr2,
-            start_align_pos: 0, vector_end_ptr: vector_end_ptr,
+            align_pos: 0, vector_end_ptr: vector_end_ptr,
         }
     }
 
@@ -172,7 +172,7 @@ impl<'a> Bufchr2<'a> {
             };
         Bufchr2 {haystack: haystack, needle0: needle0, needle1: needle1,
             position: 0, cache: 0, cb_bufchr2: cb_bufchr2,
-            start_align_pos: 0 , vector_end_ptr: vector_end_ptr,
+            align_pos: 0 , vector_end_ptr: vector_end_ptr,
         }
     }
 }
@@ -186,7 +186,7 @@ impl<'a> Iterator for Bufchr2<'a> {
             let bit_pos = self.cache.trailing_zeros() as usize;
             // Reset lowest set bit	
             self.cache = self.cache & (self.cache - 1);
-            self.position = self.start_align_pos + bit_pos + 1;
+            self.position = self.align_pos + bit_pos + 1;
             return Some(self.position);
         }
         let align_pos;
@@ -218,7 +218,7 @@ impl<'a> Iterator for Bufchr2<'a> {
             Some(pos) => {
                 self.position = align_pos + pos + 1;
                 if self.cache != 0 {
-                    self.start_align_pos = get_vector_start_ptr(self.position);
+                    self.align_pos = get_align_pos(self.position);
                 }
             }
             None =>{
@@ -237,8 +237,8 @@ pub struct Bufchr3<'a> {
     needle1: u8,
     needle2: u8,
     position: usize,
+    align_pos: usize,
     cache: u64,
-    start_align_pos: usize,
     vector_end_ptr: *const u8,
     cb_bufchr3: CbBufchr3,
 }
@@ -255,7 +255,7 @@ impl<'a> Bufchr3<'a> {
             };
         Bufchr3 {haystack: haystack, needle0: needle0, needle1: needle1, needle2: needle2,
             position: 0, cache: 0, cb_bufchr3: cb_bufchr3,
-            start_align_pos: 0, vector_end_ptr: vector_end_ptr,
+            align_pos: 0, vector_end_ptr: vector_end_ptr,
         }
     }
 
@@ -271,7 +271,7 @@ impl<'a> Bufchr3<'a> {
             };
         Bufchr3 {haystack: haystack, needle0: needle0, needle1: needle1, needle2: needle2,
             position: 0, cache: 0, cb_bufchr3: cb_bufchr3,
-            start_align_pos: 0, vector_end_ptr: vector_end_ptr,
+            align_pos: 0, vector_end_ptr: vector_end_ptr,
         }
     }
 
@@ -287,7 +287,7 @@ impl<'a> Bufchr3<'a> {
             };
         Bufchr3 {haystack: haystack, needle0: needle0, needle1: needle1, needle2: needle2,
             position: 0, cache: 0, cb_bufchr3: cb_bufchr3,
-            start_align_pos: 0, vector_end_ptr: vector_end_ptr,
+            align_pos: 0, vector_end_ptr: vector_end_ptr,
         }
     }
 }
@@ -301,7 +301,7 @@ impl<'a> Iterator for Bufchr3<'a> {
             let bit_pos = self.cache.trailing_zeros() as usize;
             // Reset lowest set bit	
             self.cache = self.cache & (self.cache - 1);
-            self.position = self.start_align_pos + bit_pos + 1;
+            self.position = self.align_pos + bit_pos + 1;
             return Some(self.position);
         }
         let align_pos;
@@ -321,19 +321,17 @@ impl<'a> Iterator for Bufchr3<'a> {
             new_haystack = std::slice::from_raw_parts(haystack, haystack_len);
         }
         let position;
-        let cache;
         unsafe{
             let (position_, cache_) = (self.cb_bufchr3)(
                 new_haystack, self.needle0, self.needle1, self.needle2, self.vector_end_ptr);
             position = position_;
-            cache = cache_;
+            self.cache = cache_;
         }
-        self.cache = cache;
         match position {
             Some(pos) => {
                 self.position = align_pos + pos + 1;
                 if self.cache != 0 {
-                    self.start_align_pos = get_vector_start_ptr(self.position);
+                    self.align_pos = get_align_pos(self.position);
                 }
             }
             None =>{
@@ -345,12 +343,8 @@ impl<'a> Iterator for Bufchr3<'a> {
 
 }
 
-#[inline]
-fn forward_pos(mask: u32) -> usize {
-    mask.trailing_zeros() as usize
-}
 
 #[inline(always)]
-fn get_vector_start_ptr(position: usize) -> usize {
+fn get_align_pos(position: usize) -> usize {
     (position / BATCH_BYTE_SIZE) * BATCH_BYTE_SIZE
 }

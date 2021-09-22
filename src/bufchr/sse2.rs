@@ -36,7 +36,8 @@ pub unsafe fn bufchr(haystack: &[u8], n1: u8, vector_end_ptr: *const u8) -> (Opt
         if (mask1 | mask2 | mask3 | mask4) != 0 {
             let umask = to_u64(mask1, mask2, mask3, mask4);
             let bit_pos = umask.trailing_zeros() as usize;
-            let cache = umask & !(1 << bit_pos);
+            // Reset lowest set bit	
+            let cache = umask & (umask - 1);   
             return (Some(sub(ptr, start_ptr) + bit_pos), cache);
         }
         ptr = ptr.add(BATCH_BYTE_SIZE);
@@ -85,7 +86,8 @@ pub unsafe fn bufchr2(haystack: &[u8], n1: u8, n2: u8, vector_end_ptr: *const u8
         if (mask1 | mask2 | mask3 | mask4) != 0 {
             let umask = to_u64(mask1, mask2, mask3, mask4);
             let bit_pos = umask.trailing_zeros() as usize;
-            let cache = umask & !(1 << bit_pos);
+            // Reset lowest set bit	
+            let cache = umask & (umask - 1);   
             return (Some(sub(ptr, start_ptr) + bit_pos), cache);
         }
         ptr = ptr.add(BATCH_BYTE_SIZE);
@@ -140,7 +142,8 @@ pub unsafe fn bufchr3(haystack: &[u8], n1: u8, n2: u8, n3: u8, vector_end_ptr: *
         if (mask1 | mask2 | mask3 | mask4) != 0 {
             let umask = to_u64(mask1, mask2, mask3, mask4);
             let bit_pos = umask.trailing_zeros() as usize;
-            let cache = umask & !(1 << bit_pos);
+            // Reset lowest set bit	
+            let cache = umask & (umask - 1);   
             return (Some(sub(ptr, start_ptr) + bit_pos), cache);
         }
         ptr = ptr.add(BATCH_BYTE_SIZE);
