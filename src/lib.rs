@@ -48,42 +48,42 @@ pub fn test_bufchr() {
 
     // line 1
     let no_0 = bf.next();
-    println!("{}", no_0.unwrap() == 3);
+    println!("{}", no_0.unwrap() == 2);
     let no_1 = bf.next();
-    println!("{}", no_1.unwrap() == 7);
+    println!("{}", no_1.unwrap() == 6);
     let no_2  = bf.next();
-    println!("{}", no_2.unwrap() == 12);
+    println!("{}", no_2.unwrap() == 11);
     let no_3  = bf.next();
-    println!("{}", no_3.unwrap() == 18);
+    println!("{}", no_3.unwrap() == 17);
 
     // line 2
     let no_4  = bf.next();
-    println!("{}", no_4.unwrap() == 28);
+    println!("{}", no_4.unwrap() == 27);
     let no_5  = bf.next();
-    println!("{}", no_5.unwrap() == 32);
+    println!("{}", no_5.unwrap() == 31);
     let no_6  = bf.next();
-    println!("{}", no_6.unwrap() == 37);
+    println!("{}", no_6.unwrap() == 36);
     let no_7  = bf.next();
-    println!("{}", no_7.unwrap() == 43);
+    println!("{}", no_7.unwrap() == 42);
 
     // line 3
     let no_8  = bf.next();
-    println!("{}", no_8.unwrap() == 53);
+    println!("{}", no_8.unwrap() == 52);
     let no_9  = bf.next();
-    println!("{}", no_9.unwrap() == 57);
+    println!("{}", no_9.unwrap() == 56);
     let no_10  = bf.next();
-    println!("{}", no_10.unwrap() == 62);
+    println!("{}", no_10.unwrap() == 61);
     let no_11  = bf.next();
     println!("no_11 : {}", no_11.unwrap());
-    println!("{}", no_11.unwrap() == 68);
+    println!("{}", no_11.unwrap() == 67);
 
     // line 4
     let no_12 = bf.next();
     println!("no_12 : {}", no_12.unwrap());
-    println!("{}", no_12.unwrap() == 78);
+    println!("{}", no_12.unwrap() == 77);
     let no_13 = bf.next();
     println!("no_13 : {}", no_13.unwrap());
-    println!("{}", no_13.unwrap() == 81);
+    println!("{}", no_13.unwrap() == 80);
     println!("======== End ========");
 }
 
@@ -100,50 +100,50 @@ pub fn test_bufchr2() {
 
     // line 1
     let no_0 = bf.next();
-    println!("{}", no_0.unwrap() == 3);
+    println!("{}", no_0.unwrap() == 2);
     let no_1 = bf.next();
-    println!("{}", no_1.unwrap() == 7);
+    println!("{}", no_1.unwrap() == 6);
     let no_2  = bf.next();
-    println!("{}", no_2.unwrap() == 12);
+    println!("{}", no_2.unwrap() == 11);
     let no_3  = bf.next();
-    println!("{}", no_3.unwrap() == 18);
+    println!("{}", no_3.unwrap() == 17);
     let no_4  = bf.next();
     println!("no_4 : {}", no_4.unwrap());
-    println!("{}", no_4.unwrap() == 25);
+    println!("{}", no_4.unwrap() == 24);
 
     // line 2
     let no_5  = bf.next();
-    println!("{}", no_5.unwrap() == 28);
+    println!("{}", no_5.unwrap() == 27);
     let no_6  = bf.next();
-    println!("{}", no_6.unwrap() == 32);
+    println!("{}", no_6.unwrap() == 31);
     let no_7  = bf.next();
-    println!("{}", no_7.unwrap() == 37);
+    println!("{}", no_7.unwrap() == 36);
     let no_8  = bf.next();
-    println!("{}", no_8.unwrap() == 43);
+    println!("{}", no_8.unwrap() == 42);
     let no_9  = bf.next();
     println!("no_9 : {}", no_4.unwrap());
-    println!("{}", no_9.unwrap() == 50);
+    println!("{}", no_9.unwrap() == 49);
 
     // line 3
     let no_10  = bf.next();
-    println!("{}", no_10.unwrap() == 53);
+    println!("{}", no_10.unwrap() == 52);
     let no_11  = bf.next();
-    println!("{}", no_11.unwrap() == 57);
+    println!("{}", no_11.unwrap() == 56);
     let no_12  = bf.next();
-    println!("{}", no_12.unwrap() == 62);
+    println!("{}", no_12.unwrap() == 61);
     let no_13  = bf.next();
-    println!("{}", no_13.unwrap() == 68);
+    println!("{}", no_13.unwrap() == 67);
     let no_14 = bf.next();
     println!("no_14 : {}", no_14.unwrap());
-    println!("{}", no_14.unwrap() == 75);
+    println!("{}", no_14.unwrap() == 74);
 
     // line 4
     let no_15 = bf.next();
     println!("no_15 : {}", no_15.unwrap());
-    println!("{}", no_15.unwrap() == 78);
+    println!("{}", no_15.unwrap() == 77);
     let no_16 = bf.next();
     println!("no_16 : {}", no_16.unwrap());
-    println!("{}", no_16.unwrap() == 81);
+    println!("{}", no_16.unwrap() == 80);
     println!("======== End ========");
 }
 
@@ -161,57 +161,57 @@ pub fn test_bufchr3() {
 
     // line 1
     let no_0 = bf.next();
-    println!("{}", no_0.unwrap() == 3);
+    println!("{}", no_0.unwrap() == 2);
     let no_1 = bf.next();
-    println!("{}", no_1.unwrap() == 7);
+    println!("{}", no_1.unwrap() == 6);
     let no_2  = bf.next();
-    println!("{}", no_2.unwrap() == 8);
+    println!("{}", no_2.unwrap() == 7);
     let no_3  = bf.next();
-    println!("{}", no_3.unwrap() == 11);
+    println!("{}", no_3.unwrap() == 10);
     let no_4  = bf.next();
-    println!("{}", no_4.unwrap() == 12);
+    println!("{}", no_4.unwrap() == 11);
     let no_5  = bf.next();
-    println!("{}", no_5.unwrap() == 18);
+    println!("{}", no_5.unwrap() == 17);
     let no_6  = bf.next();
     println!("no_6 : {}", no_6.unwrap());
-    println!("{}", no_6.unwrap() == 25);
+    println!("{}", no_6.unwrap() == 24);
 
     // line 2
     let no_7  = bf.next();
-    println!("{}", no_7.unwrap() == 28);
+    println!("{}", no_7.unwrap() == 27);
     let no_8  = bf.next();
-    println!("{}", no_8.unwrap() == 32);
+    println!("{}", no_8.unwrap() == 31);
     let no_9  = bf.next();
-    println!("{}", no_9.unwrap() == 37);
+    println!("{}", no_9.unwrap() == 36);
     let no_10  = bf.next();
-    println!("{}", no_10.unwrap() == 43);
+    println!("{}", no_10.unwrap() == 42);
     let no_11  = bf.next();
     println!("no_11 : {}", no_11.unwrap());
-    println!("{}", no_11.unwrap() == 50);
+    println!("{}", no_11.unwrap() == 49);
 
     // line 3
     let no_12  = bf.next();
-    println!("{}", no_12.unwrap() == 53);
+    println!("{}", no_12.unwrap() == 52);
     let no_13  = bf.next();
-    println!("{}", no_13.unwrap() == 57);
+    println!("{}", no_13.unwrap() == 56);
     let no_14  = bf.next();
-    println!("{}", no_14.unwrap() == 58);
+    println!("{}", no_14.unwrap() == 57);
     let no_15  = bf.next();
-    println!("{}", no_15.unwrap() == 61);
+    println!("{}", no_15.unwrap() == 60);
     let no_16  = bf.next();
-    println!("{}", no_16.unwrap() == 62);
+    println!("{}", no_16.unwrap() == 61);
     let no_17  = bf.next();
-    println!("{}", no_17.unwrap() == 68);
+    println!("{}", no_17.unwrap() == 67);
     let no_18 = bf.next();
     println!("no_18 : {}", no_18.unwrap());
-    println!("{}", no_18.unwrap() == 75);
+    println!("{}", no_18.unwrap() == 74);
 
     // line 4
     let no_19 = bf.next();
     println!("no_19 : {}", no_19.unwrap());
-    println!("{}", no_19.unwrap() == 78);
+    println!("{}", no_19.unwrap() == 77);
     let no_20 = bf.next();
     println!("no_20 : {}", no_20.unwrap());
-    println!("{}", no_20.unwrap() == 81);
+    println!("{}", no_20.unwrap() == 80);
     println!("======== End ========");
 }

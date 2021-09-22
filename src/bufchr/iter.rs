@@ -76,8 +76,9 @@ impl<'a> Iterator for Bufchr<'a> {
             let bit_pos = self.cache.trailing_zeros() as usize;
             // Reset lowest set bit	
             self.cache = self.cache & (self.cache - 1);
-            self.position = self.align_pos + bit_pos + 1;
-            return Some(self.position);
+            let position = self.align_pos + bit_pos;
+            self.position = position + 1;
+            return Some(position);
         }
         let align_pos;
         if self.position == 0 {
@@ -101,18 +102,15 @@ impl<'a> Iterator for Bufchr<'a> {
             position = position_;
             self.cache = cache_;
         }
-        match position {
-            Some(pos) => {
-                self.position = align_pos + pos + 1;
-                if self.cache != 0 {
-                    self.align_pos = get_align_pos(self.position);
-                }
+        if let Some(pos) = position {
+            let position = align_pos + pos;
+            self.position = position + 1;
+            if self.cache != 0 {
+                self.align_pos = get_align_pos(position);
             }
-            None =>{
-                return None;
-            }
+            return Some(position);
         }
-        Some(self.position)
+        None
     }
 
 }
@@ -186,8 +184,9 @@ impl<'a> Iterator for Bufchr2<'a> {
             let bit_pos = self.cache.trailing_zeros() as usize;
             // Reset lowest set bit	
             self.cache = self.cache & (self.cache - 1);
-            self.position = self.align_pos + bit_pos + 1;
-            return Some(self.position);
+            let position = self.align_pos + bit_pos;
+            self.position = position + 1;
+            return Some(position);
         }
         let align_pos;
         if self.position == 0 {
@@ -206,26 +205,21 @@ impl<'a> Iterator for Bufchr2<'a> {
             new_haystack = std::slice::from_raw_parts(haystack, haystack_len);
         }
         let position;
-        let cache;
         unsafe{
             let (position_, cache_) = (self.cb_bufchr2)
                 (new_haystack, self.needle0, self.needle1, self.vector_end_ptr);
             position = position_;
-            cache = cache_;
+            self.cache = cache_;
         }
-        self.cache = cache;
-        match position {
-            Some(pos) => {
-                self.position = align_pos + pos + 1;
-                if self.cache != 0 {
-                    self.align_pos = get_align_pos(self.position);
-                }
+        if let Some(pos) = position {
+            let position = align_pos + pos;
+            self.position = position + 1;
+            if self.cache != 0 {
+                self.align_pos = get_align_pos(position);
             }
-            None =>{
-                return None;
-            }
+            return Some(position);
         }
-        Some(self.position)
+        None
     }
 
 }
@@ -301,8 +295,9 @@ impl<'a> Iterator for Bufchr3<'a> {
             let bit_pos = self.cache.trailing_zeros() as usize;
             // Reset lowest set bit	
             self.cache = self.cache & (self.cache - 1);
-            self.position = self.align_pos + bit_pos + 1;
-            return Some(self.position);
+            let position = self.align_pos + bit_pos;
+            self.position = position + 1;
+            return Some(position);
         }
         let align_pos;
         if self.position == 0 {
@@ -327,18 +322,15 @@ impl<'a> Iterator for Bufchr3<'a> {
             position = position_;
             self.cache = cache_;
         }
-        match position {
-            Some(pos) => {
-                self.position = align_pos + pos + 1;
-                if self.cache != 0 {
-                    self.align_pos = get_align_pos(self.position);
-                }
+        if let Some(pos) = position {
+            let position = align_pos + pos;
+            self.position = position + 1;
+            if self.cache != 0 {
+                self.align_pos = get_align_pos(position);
             }
-            None =>{
-                return None;
-            }
+            return Some(position);
         }
-        Some(self.position)
+        None
     }
 
 }
