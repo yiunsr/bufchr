@@ -134,6 +134,52 @@ pub unsafe fn bufchr3(haystack: &[u8], n1: u8, n2: u8, n3: u8, vector_end_ptr: *
     }
 }
 
+#[target_feature(enable = "avx")]
+pub unsafe fn bufchrfast3(haystack: &[u8], n1: u8, n2: u8, n3: u8, vector_end_ptr: *const u8) -> (Option<usize>, u64) {
+    let haystack_len = haystack.len();
+    if haystack_len < BATCH_BYTE_SIZE {
+        return fallback::bufchr3(haystack, n1, n2, n3, vector_end_ptr);
+    }
+    let start_ptr = haystack.as_ptr();
+    let mut ptr = start_ptr;
+    let vn1 = _mm256_set1_epi8(n1 as i8);
+    let vn2 = _mm256_set1_epi8(n2 as i8);
+    let vn3 = _mm256_set1_epi8(n3 as i8);
+
+    while ptr < vector_end_ptr{
+        let chunk = _mm256_load_si256(ptr as *const __m256i);
+        let eq1 = _mm256_cmpeq_epi8(chunk, vn1);
+        let eq2 = _mm256_cmpeq_epi8(chunk, vn2);
+        let eq3 = _mm256_cmpeq_epi8(chunk, vn3);
+        let mask1 = _mm256_movemask_epi8(eq1) | _mm256_movemask_epi8(eq2) | _mm256_movemask_epi8(eq3);
+
+        let chunk = _mm256_load_si256(ptr.add(VECTOR_SIZE) as *const __m256i);
+        let eq1 = _mm256_cmpeq_epi8(chunk, vn1);
+        let eq2 = _mm256_cmpeq_epi8(chunk, vn2);
+        let eq3 = _mm256_cmpeq_epi8(chunk, vn3);
+        let mask2 = _mm256_movemask_epi8(eq1) | _mm256_movemask_epi8(eq2) | _mm256_movemask_epi8(eq3);
+
+        if (mask1 | mask2) != 0 {
+            let umask = to_u64(mask1, mask2);
+            let bit_pos = umask.trailing_zeros() as usize;
+            // Reset lowest set bit	
+            let cache = umask & (umask - 1);   
+            return (Some(sub(ptr, start_ptr) + bit_pos), cache);
+        }
+        ptr = ptr.add(BATCH_BYTE_SIZE);
+    }
+
+    let rest_haystack = std::slice::from_raw_parts(
+        vector_end_ptr, haystack_len % BATCH_BYTE_SIZE);
+        
+    match fallback::bufchr3_raw(rest_haystack, n1, n2, n3) {
+        Some(pos) => {
+            (Some(sub(ptr, start_ptr) + pos), 0)
+        }
+        None => { (None, 0)}
+    }
+}
+
 #[inline]
 fn sub(a: *const u8, b: *const u8) -> usize {
     debug_assert!(a >= b);

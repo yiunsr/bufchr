@@ -31,7 +31,7 @@ assert_eq!(bf.next(), None);
 // pub use crate::bufchr::{bufchr, bufchr2, bufchr3, CbBufchr, CbBufchr2, CbBufchr3};
 
 pub use crate::bufchr::{
-    Bufchr, Bufchr2, Bufchr3,
+    Bufchr, Bufchr2, Bufchr3, BufchrFast3,
 };
 
 pub mod bufchr;

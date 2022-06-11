@@ -65,3 +65,9 @@ assert_eq!(bf.next(), None);
 
 ## Algorithms 
 * For CPUs that support avx2, the _mm256_cmpeq_epi8 instruction is supported. Through _mm256_cmpeq_epi8, comparison operation can be performed on 32 bytes at a time. For CPUs that support sse2, the _mm_cmpeq_epi8 instruction is supported and comparison operations are supported for 16 bytes at a time. 
+
+
+## CSV sample
+* gdp.csv : https://data.worldbank.org/indicator/NY.GDP.MKTP.CD
+* ISO-3166-1.csv : https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2
+* comtrade.csv : https://comtrade.un.org/
