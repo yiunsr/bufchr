@@ -4,7 +4,9 @@ use crate::bufchr::CbBufchr2;
 use crate::bufchr::CbBufchr3;
 use crate::bufchr::CbBufchrFast3;
 
+const VECTOR_SIZE: usize = 32;
 const BATCH_BYTE_SIZE: usize = 64;
+const BATCH_BYTE_SIZE2: usize = 128;
 
 /// struct used when there is only one needle
 pub struct Bufchr<'a> {
@@ -343,7 +345,8 @@ pub struct BufchrFast3<'a> {
     needle2: u8,
     position: usize,
     align_pos: usize,
-    cache: u64,
+    cache1: u64,
+    cache2: u64,
     vector_end_ptr: *const u8,
     cb_bufchrfast3: CbBufchrFast3,
 }
@@ -356,10 +359,10 @@ impl<'a> BufchrFast3<'a> {
         let start_ptr = haystack.as_ptr();
         let vector_end_ptr = 
             unsafe{
-                start_ptr.add((haystack_len / BATCH_BYTE_SIZE) * BATCH_BYTE_SIZE)
+                start_ptr.add((haystack_len / BATCH_BYTE_SIZE2) * BATCH_BYTE_SIZE2)
             };
         BufchrFast3 {haystack: haystack, needle0: needle0, needle1: needle1, needle2: needle2,
-            position: 0, cache: 0, cb_bufchrfast3: cb_bufchrfast3,
+            position: 0, cache1: 0, cache2: 0, cb_bufchrfast3: cb_bufchrfast3,
             align_pos: 0, vector_end_ptr: vector_end_ptr,
         }
     }
@@ -375,7 +378,7 @@ impl<'a> BufchrFast3<'a> {
                 start_ptr.add((haystack_len / BATCH_BYTE_SIZE) * BATCH_BYTE_SIZE)
             };
         BufchrFast3 {haystack: haystack, needle0: needle0, needle1: needle1, needle2: needle2,
-            position: 0, cache: 0, cb_bufchrfast3: cb_bufchrfast3,
+            position: 0, cache1: 0, cache2: 0, cb_bufchrfast3: cb_bufchrfast3,
             align_pos: 0, vector_end_ptr: vector_end_ptr,
         }
     }
@@ -383,7 +386,7 @@ impl<'a> BufchrFast3<'a> {
     #[doc(hidden)]
     #[inline]
     pub fn new_sse2(haystack: &[u8], needle0: u8, needle1: u8, needle2: u8) -> BufchrFast3<'_> {
-        let cb_bufchrfast3 = bufchr::sse2::bufchr3;
+        let cb_bufchrfast3 = bufchr::sse2::bufchrfast3;
         let haystack_len = haystack.len();
         let start_ptr = haystack.as_ptr();
         let vector_end_ptr = 
@@ -391,7 +394,7 @@ impl<'a> BufchrFast3<'a> {
                 start_ptr.add((haystack_len / BATCH_BYTE_SIZE) * BATCH_BYTE_SIZE)
             };
         BufchrFast3 {haystack: haystack, needle0: needle0, needle1: needle1, needle2: needle2,
-            position: 0, cache: 0, cb_bufchrfast3: cb_bufchrfast3,
+            position: 0, cache1: 0, cache2: 0, cb_bufchrfast3: cb_bufchrfast3,
             align_pos: 0, vector_end_ptr: vector_end_ptr,
         }
     }
@@ -402,11 +405,19 @@ impl<'a> Iterator for BufchrFast3<'a> {
     /// The needle position is returned. If there is no needle, None is returned.
     #[inline]
     fn next(&mut self) -> Option<usize> {
-        if self.cache != 0 {
-            let bit_pos = self.cache.trailing_zeros() as usize;
+        if self.cache1 != 0 {
+            let bit_pos = self.cache1.trailing_zeros() as usize;
             // Reset lowest set bit	
-            self.cache = self.cache & (self.cache - 1);
+            self.cache1 = self.cache1 & (self.cache1 - 1);
             let position = self.align_pos + bit_pos;
+            self.position = position + 1;
+            return Some(position);
+        }
+        else if self.cache2 != 0 {
+            let bit_pos = self.cache2.trailing_zeros() as usize;
+            // Reset lowest set bit	
+            self.cache2 = self.cache2 & (self.cache2 - 1);
+            let position = self.align_pos + bit_pos + BATCH_BYTE_SIZE;
             self.position = position + 1;
             return Some(position);
         }
@@ -414,11 +425,11 @@ impl<'a> Iterator for BufchrFast3<'a> {
         if self.position == 0 {
             align_pos = 0;
         }
-        else if self.haystack.len() - self.position < BATCH_BYTE_SIZE{
+        else if self.haystack.len() - self.position < BATCH_BYTE_SIZE2{
             align_pos = self.position;
         }
         else{
-            align_pos = ( (self.position - 1) / BATCH_BYTE_SIZE + 1) * BATCH_BYTE_SIZE;
+            align_pos = ( (self.position - 1) / BATCH_BYTE_SIZE2 + 1) * BATCH_BYTE_SIZE2;
         }
         let haystack_len = self.haystack.len() - align_pos;
         let new_haystack;
@@ -428,16 +439,20 @@ impl<'a> Iterator for BufchrFast3<'a> {
         }
         let position;
         unsafe{
-            let (position_, cache_) = (self.cb_bufchrfast3)(
+            let (position_, cache1, cache2) = (self.cb_bufchrfast3)(
                 new_haystack, self.needle0, self.needle1, self.needle2, self.vector_end_ptr);
             position = position_;
-            self.cache = cache_;
+            self.cache1 = cache1;
+            self.cache2 = cache2;
         }
         if let Some(pos) = position {
             let position = align_pos + pos;
             self.position = position + 1;
-            if self.cache != 0 {
-                self.align_pos = get_align_pos(position);
+            if self.cache1 != 0 {
+                self.align_pos = get_align_pos_fast(position);
+            }
+            else if self.cache2 != 0 {
+                self.align_pos = get_align_pos_fast(position);
             }
             return Some(position);
         }
@@ -450,3 +465,8 @@ impl<'a> Iterator for BufchrFast3<'a> {
 fn get_align_pos(position: usize) -> usize {
     (position / BATCH_BYTE_SIZE) * BATCH_BYTE_SIZE
 }
+#[inline(always)]
+fn get_align_pos_fast(position: usize) -> usize {
+    (position / BATCH_BYTE_SIZE2) * BATCH_BYTE_SIZE2
+}
+

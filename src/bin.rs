@@ -2,7 +2,8 @@ use std::time::Instant;
 
 use bufchr;
 
-static CSV_HAYSTACK: &'static [u8] = include_bytes!("../data/gdp_org.csv");
+//static CSV_HAYSTACK: &'static [u8] = include_bytes!("../data/gdp_org.csv");
+static CSV_HAYSTACK: &'static [u8] = include_bytes!("../data/comtrade.csv");
 fn boot_haystack(){
     let before = Instant::now();
     let mut count = 0;
@@ -74,8 +75,8 @@ fn test_bufchr3_simple() {
 
 pub fn main() {
     boot_haystack();
-    //test_bufchr();
-    //test_bufchr3();
+    test_bufchr();
+    test_bufchr3();
     test_bufchrfast3();
-    //test_bufchr3_simple();
+    test_bufchr3_simple();
 }
