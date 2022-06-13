@@ -2,11 +2,34 @@
 #[cfg(test)]
 mod tests {
     use std::mem;
-    use bufchr::{Bufchr, Bufchr2, Bufchr3, BufchrFast3};
+    use bufchr::{Bufchr, Bufchr2, Bufchr3, BufchrCSV};
     use super::*;
 
-    static HAYSTACK_ISO_3166: &'static [u8] = include_bytes!("../data/test/ISO-3166-1.csv");
-    static TEST_01: &'static [u8] = include_bytes!("../data/test/test01.txt");
+    // https://jack.wrenn.fyi/blog/include-transmute/
+    macro_rules! include_bytes_align_as {
+        ($align_ty:ty, $path:literal) => {{
+            #[repr(C)]
+            pub struct AlignedAs<Align, Bytes: ?Sized> {
+                pub _align: [Align; 0],
+                pub bytes: Bytes,
+            }
+
+            static ALIGNED: &AlignedAs::<$align_ty, [u8]> = &AlignedAs {
+                _align: [],
+                bytes: *include_bytes!($path),
+            };
+
+            &ALIGNED.bytes
+        }};
+    }
+
+    #[repr(align(32))]
+    struct Align32;
+
+    // static HAYSTACK_ISO_3166: &'static [u8] = include_bytes!("../data/test/ISO-3166-1.csv");
+    // static TEST_01: &'static [u8] = include_bytes!("../data/test/test01.txt");
+    static HAYSTACK_ISO_3166: &'static [u8] = include_bytes_align_as!(Align32, "../data/test/ISO-3166-1.csv"); // alignment of 32
+    static TEST_01: &'static [u8] = include_bytes_align_as!(Align32, "../data/test/test01.txt"); // alignment of 32
 
     #[repr(align(32))]
     struct AlignTo32Short{
@@ -167,7 +190,7 @@ mod tests {
         let n1 = b',';
         let n2 = b'\n';
         let n3 = b'"';
-        let mut bf = BufchrFast3::new(&a32.data, n1, n2, n3);
+        let mut bf = BufchrCSV::new(&a32.data,  b',');
         assert_eq!(bf.next(), Some(2));
         assert_eq!(bf.next(), Some(3));
         assert_eq!(bf.next(), Some(7));
@@ -193,7 +216,7 @@ mod tests {
         let n1 = b',';
         let n2 = b'\n';
         let n3 = b'"';
-        let mut bf = BufchrFast3::new_sse2(&a32.data, n1, n2, n3);
+        let mut bf = BufchrCSV::new_sse2(&a32.data,  b',');
         assert_eq!(bf.next(), Some(2));
         assert_eq!(bf.next(), Some(3));
         assert_eq!(bf.next(), Some(7));
@@ -219,7 +242,7 @@ mod tests {
         let n1 = b',';
         let n2 = b'\n';
         let n3 = b'"';
-        let mut bf = BufchrFast3::new_avx(&a32.data, n1, n2, n3);
+        let mut bf = BufchrCSV::new_avx(&a32.data,  b',');
         assert_eq!(bf.next(), Some(2));
         assert_eq!(bf.next(), Some(3));
         assert_eq!(bf.next(), Some(7));
@@ -263,7 +286,7 @@ mod tests {
         for u in haystack.iter(){
             a32.data[idx] = *u;idx +=1;
         }
-        let mut bf = BufchrFast3::new(&a32.data, n1, n2, n3);
+        let mut bf = BufchrCSV::new(&a32.data, b',');
         assert_eq!(bf.next(), Some(64 + 34));
         assert_eq!(bf.next(), Some(64 + 38));
         assert_eq!(bf.next(), Some(64 + 40));
@@ -304,7 +327,7 @@ mod tests {
         for u in haystack.iter(){
             a32.data[idx] = *u;idx +=1;
         }
-        let mut bf = BufchrFast3::new_avx(&a32.data, n1, n2, n3);
+        let mut bf = BufchrCSV::new_avx(&a32.data, b',');
         assert_eq!(bf.next(), Some(64 + 34));
         assert_eq!(bf.next(), Some(64 + 38));
         assert_eq!(bf.next(), Some(64 + 40));
@@ -346,7 +369,7 @@ mod tests {
         for u in haystack.iter(){
             a32.data[idx] = *u;idx +=1;
         }
-        let mut bf = BufchrFast3::new_sse2(&a32.data, n1, n2, n3);
+        let mut bf = BufchrCSV::new_sse2(&a32.data,  b',');
         assert_eq!(bf.next(), Some(64 + 34));
         assert_eq!(bf.next(), Some(64 + 38));
         assert_eq!(bf.next(), Some(64 + 40));
@@ -391,7 +414,7 @@ mod tests {
         for u in haystack.iter(){
             a32.data[idx] = *u;idx +=1;
         }
-        let mut bf = BufchrFast3::new_sse2(&a32.data, n1, n2, n3);
+        let mut bf = BufchrCSV::new_sse2(&a32.data,  b',');
         assert_eq!(bf.next(), Some(128 + 34));
         assert_eq!(bf.next(), Some(128 + 38));
         assert_eq!(bf.next(), Some(128 + 40));
@@ -436,7 +459,7 @@ mod tests {
         for u in haystack.iter(){
             a32.data[idx] = *u;idx +=1;
         }
-        let mut bf = BufchrFast3::new(&a32.data, n1, n2, n3);
+        let mut bf = BufchrCSV::new(&a32.data, b',');
         assert_eq!(bf.next(), Some(128 + 64));
         assert_eq!(bf.next(), Some(128 + 66));
         assert_eq!(bf.next(), Some(128 + 67));
@@ -464,13 +487,7 @@ mod tests {
         assert_eq!(bf.next(), Some(131));
         assert_eq!(bf.next(), None);
 
-        let mut bf = BufchrFast3::new(TEST_01, n1, n2, n3);
-        assert_eq!(bf.next(), Some(128));
-        assert_eq!(bf.next(), Some(129));
-        assert_eq!(bf.next(), Some(131));
-        assert_eq!(bf.next(), None);
-
-        let mut bf = BufchrFast3::new(TEST_01, n1, n2, n3);
+        let mut bf = BufchrCSV::new(TEST_01,  b',');
         assert_eq!(bf.next(), Some(128));
         assert_eq!(bf.next(), Some(129));
         assert_eq!(bf.next(), Some(131));
@@ -489,7 +506,7 @@ mod tests {
             a32.data[idx] = *u;idx +=1;
         }
 
-        let mut bf = BufchrFast3::new(&a32.data, n1, n2, n3);
+        let mut bf = BufchrCSV::new(&a32.data, b',');
         assert_eq!(bf.next(), Some(128 + 128));
         assert_eq!(bf.next(), Some(128 + 129));
         assert_eq!(bf.next(), Some(128 + 131));
@@ -551,12 +568,8 @@ mod tests {
 
     #[test]
     fn test_1004_iso_3166() {
-        let n1 = b',';
-        let n2 = b' ';
-        let n3 = b'\n';
-        let mut bf = BufchrFast3::new_avx(HAYSTACK_ISO_3166, n1, n2, n3);
+        let mut bf = BufchrCSV::new_avx(HAYSTACK_ISO_3166, b',');
         assert_eq!(bf.next(), Some(4));
-        assert_eq!(bf.next(), Some(12));
         assert_eq!(bf.next(), Some(18));
         let mut last_pos;
         while let position = bf.next() {

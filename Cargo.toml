@@ -17,5 +17,8 @@ name = "bufchrbench"
 harness = false
 path = "benches/bench.rs"
 
+[dependencies]
+lazy_static = "1.4.0"
+
 [dev-dependencies]
 bencher = "0.1.5"

@@ -6,6 +6,16 @@ const LOOP_COUNT: usize = 2;
 const BATCH_BYTE_SIZE: usize = VECTOR_SIZE * LOOP_COUNT;
 const BATCH_BYTE_SIZE2: usize = VECTOR_SIZE * LOOP_COUNT * 2;
 
+const LINE_FEED_M256I:__m256i = unsafe {
+    std::mem::transmute::<[u32;8], __m256i>(
+        [0x0A0A0A0A, 0x0A0A0A0A, 0x0A0A0A0A, 0x0A0A0A0A, 0x0A0A0A0A, 0x0A0A0A0A, 0x0A0A0A0A, 0x0A0A0A0A])
+};
+
+const DOUBLE_QUOTATION_M256I:__m256i = unsafe {
+    std::mem::transmute::<[u32;8], __m256i>(
+        [0x22222222, 0x22222222, 0x22222222, 0x22222222, 0x22222222, 0x22222222, 0x22222222, 0x22222222])
+};
+
 pub fn get_vector_size() -> usize {
     VECTOR_SIZE
 }
@@ -135,17 +145,18 @@ pub unsafe fn bufchr3(haystack: &[u8], n1: u8, n2: u8, n3: u8, vector_end_ptr: *
     }
 }
 
+
 #[target_feature(enable = "avx")]
-pub unsafe fn bufchrfast3(haystack: &[u8], n1: u8, n2: u8, n3: u8, vector_end_ptr: *const u8) -> (Option<usize>, u64, u64) {
+pub unsafe fn bufchr_csv(haystack: &[u8], n1: u8, vector_end_ptr: *const u8) -> (Option<usize>, u64, u64) {
     let haystack_len = haystack.len();
     if haystack_len < BATCH_BYTE_SIZE2 {
-        return fallback::bufchrfast3(haystack, n1, n2, n3, vector_end_ptr);
+        return fallback::bufchr_csv(haystack, n1, vector_end_ptr);
     }
     let start_ptr = haystack.as_ptr();
     let mut ptr = start_ptr;
     let vn1 = _mm256_set1_epi8(n1 as i8);
-    let vn2 = _mm256_set1_epi8(n2 as i8);
-    let vn3 = _mm256_set1_epi8(n3 as i8);
+    let &vn2 = &LINE_FEED_M256I;
+    let &vn3 = &DOUBLE_QUOTATION_M256I;
 
     while ptr < vector_end_ptr{
         let chunk = _mm256_load_si256(ptr as *const __m256i);
@@ -193,7 +204,7 @@ pub unsafe fn bufchrfast3(haystack: &[u8], n1: u8, n2: u8, n3: u8, vector_end_pt
     let rest_haystack = std::slice::from_raw_parts(
         vector_end_ptr, haystack_len % BATCH_BYTE_SIZE2);
         
-    match fallback::bufchrfast3_raw(rest_haystack, n1, n2, n3) {
+    match fallback::bufchr_csv_raw(rest_haystack, n1) {
         Some(pos) => {
             (Some(sub(ptr, start_ptr) + pos), 0, 0)
         }

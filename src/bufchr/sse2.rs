@@ -7,6 +7,17 @@ const CACHE_MASK_SIZE: usize = 64;
 const BATCH_BYTE_SIZE: usize = VECTOR_SIZE * LOOP_COUNT;
 const BATCH_BYTE_SIZE2: usize = VECTOR_SIZE * LOOP_COUNT * 2;
 
+
+const LINE_FEED_M128I:__m128i = unsafe {
+    std::mem::transmute::<[u32;4], __m128i>(
+        [0x0A0A0A0A, 0x0A0A0A0A, 0x0A0A0A0A, 0x0A0A0A0A])
+};
+
+const DOUBLE_QUOTATION_M128I:__m128i = unsafe {
+    std::mem::transmute::<[u32;4], __m128i>(
+        [0x22222222, 0x22222222, 0x22222222, 0x22222222])
+};
+
 pub fn get_vector_size() -> usize {
     VECTOR_SIZE
 }
@@ -152,16 +163,16 @@ pub unsafe fn bufchr3(haystack: &[u8], n1: u8, n2: u8, n3: u8, vector_end_ptr: *
 }
 
 #[target_feature(enable = "sse2")]
-pub unsafe fn bufchrfast3(haystack: &[u8], n1: u8, n2: u8, n3: u8, vector_end_ptr: *const u8) -> (Option<usize>, u64, u64) {
+pub unsafe fn bufchr_csv(haystack: &[u8], n1: u8, vector_end_ptr: *const u8) -> (Option<usize>, u64, u64) {
     let haystack_len = haystack.len();
     if haystack_len < BATCH_BYTE_SIZE2 {
-        return fallback::bufchrfast3(haystack, n1, n2, n3, vector_end_ptr);
+        return fallback::bufchr_csv(haystack, n1, vector_end_ptr);
     }
     let start_ptr = haystack.as_ptr();
     let mut ptr = start_ptr;
     let vn1 = _mm_set1_epi8(n1 as i8);
-    let vn2 = _mm_set1_epi8(n2 as i8);
-    let vn3 = _mm_set1_epi8(n3 as i8);
+    let &vn2 = &LINE_FEED_M128I;
+    let &vn3 = &DOUBLE_QUOTATION_M128I;
 
     while ptr < vector_end_ptr{
         // https://stackoverflow.com/a/15964428/6652082
@@ -233,7 +244,7 @@ pub unsafe fn bufchrfast3(haystack: &[u8], n1: u8, n2: u8, n3: u8, vector_end_pt
         ptr = ptr.add(BATCH_BYTE_SIZE2);
     }
 
-    return fallback::bufchrfast3(haystack, n1, n2, n3, vector_end_ptr);
+    return fallback::bufchr_csv(haystack, n1, vector_end_ptr);
 }
 
 

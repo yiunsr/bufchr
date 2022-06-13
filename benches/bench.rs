@@ -43,12 +43,12 @@ fn read_gdp_csv3(bench: &mut Bencher) {
     });
 }
 
-fn read_gdp_csv3_fast(bench: &mut Bencher) {
+fn read_gdp_csv3_csv(bench: &mut Bencher) {
     bench.iter(|| {
         let n1 = b',';
         let n2 = b'"';
         let n3 = b'\n';
-        let mut bf = bufchr::BufchrFast3::new(CSV_HAYSTACK, n1, n2, n3);
+        let mut bf = bufchr::BufchrCSV::new(CSV_HAYSTACK, n1);
         loop {
             let n = bf.next();
             if n == None{break;}
@@ -56,5 +56,5 @@ fn read_gdp_csv3_fast(bench: &mut Bencher) {
     });
 }
 
-benchmark_group!(benches, read_gdp_csv, read_gdp_csv2, read_gdp_csv3, read_gdp_csv3_fast);
+benchmark_group!(benches, read_gdp_csv, read_gdp_csv2, read_gdp_csv3, read_gdp_csv3_csv);
 benchmark_main!(benches);

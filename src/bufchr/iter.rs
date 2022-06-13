@@ -2,7 +2,7 @@ use crate::bufchr;
 use crate::bufchr::CbBufchr;
 use crate::bufchr::CbBufchr2;
 use crate::bufchr::CbBufchr3;
-use crate::bufchr::CbBufchrFast3;
+use crate::bufchr::CbBufchrCSV;
 
 const VECTOR_SIZE: usize = 32;
 const BATCH_BYTE_SIZE: usize = 64;
@@ -338,68 +338,66 @@ impl<'a> Iterator for Bufchr3<'a> {
 
 }
 
-pub struct BufchrFast3<'a> {
+pub struct BufchrCSV<'a> {
     haystack: &'a [u8],
     needle0: u8,
-    needle1: u8,
-    needle2: u8,
     position: usize,
     align_pos: usize,
     cache1: u64,
     cache2: u64,
     vector_end_ptr: *const u8,
-    cb_bufchrfast3: CbBufchrFast3,
+    cb_bufchr_csv: CbBufchrCSV,
 }
-impl<'a> BufchrFast3<'a> {
+impl<'a> BufchrCSV<'a> {
     /// needle0, needle1, needle2 are what you are trying to find and the location you are looking for is haystack.
     #[inline]
-    pub fn new(haystack: &[u8], needle0: u8, needle1: u8, needle2: u8) -> BufchrFast3<'_> {
-        let cb_bufchrfast3 = bufchr::get_cb_bufchrfast3();
+    pub fn new(haystack: &[u8], needle0: u8) -> BufchrCSV<'_> {
+        let cb_bufchr_csv = bufchr::get_cb_BufchrCSV();
         let haystack_len = haystack.len();
         let start_ptr = haystack.as_ptr();
         let vector_end_ptr = 
             unsafe{
                 start_ptr.add((haystack_len / BATCH_BYTE_SIZE2) * BATCH_BYTE_SIZE2)
             };
-        BufchrFast3 {haystack: haystack, needle0: needle0, needle1: needle1, needle2: needle2,
-            position: 0, cache1: 0, cache2: 0, cb_bufchrfast3: cb_bufchrfast3,
+        BufchrCSV {haystack: haystack, needle0: needle0,
+            position: 0, cache1: 0, cache2: 0, cb_bufchr_csv: cb_bufchr_csv,
             align_pos: 0, vector_end_ptr: vector_end_ptr,
         }
     }
 
     #[doc(hidden)]
     #[inline]
-    pub fn new_avx(haystack: &[u8], needle0: u8, needle1: u8, needle2: u8) -> BufchrFast3<'_> {
-        let cb_bufchrfast3 = bufchr::avx::bufchrfast3;
+    pub fn new_avx(haystack: &[u8], needle0: u8) -> BufchrCSV<'_> {
+        let cb_bufchr_csv = bufchr::avx::bufchr_csv;
         let haystack_len = haystack.len();
         let start_ptr = haystack.as_ptr();
         let vector_end_ptr = 
             unsafe{
                 start_ptr.add((haystack_len / BATCH_BYTE_SIZE) * BATCH_BYTE_SIZE)
             };
-        BufchrFast3 {haystack: haystack, needle0: needle0, needle1: needle1, needle2: needle2,
-            position: 0, cache1: 0, cache2: 0, cb_bufchrfast3: cb_bufchrfast3,
+        BufchrCSV {haystack: haystack, needle0: needle0,
+            position: 0, cache1: 0, cache2: 0, cb_bufchr_csv: cb_bufchr_csv,
             align_pos: 0, vector_end_ptr: vector_end_ptr,
         }
     }
 
     #[doc(hidden)]
     #[inline]
-    pub fn new_sse2(haystack: &[u8], needle0: u8, needle1: u8, needle2: u8) -> BufchrFast3<'_> {
-        let cb_bufchrfast3 = bufchr::sse2::bufchrfast3;
+    pub fn new_sse2(haystack: &[u8], needle0: u8) -> BufchrCSV<'_> {
+        let cb_bufchr_csv = bufchr::sse2::bufchr_csv;
         let haystack_len = haystack.len();
         let start_ptr = haystack.as_ptr();
         let vector_end_ptr = 
             unsafe{
                 start_ptr.add((haystack_len / BATCH_BYTE_SIZE) * BATCH_BYTE_SIZE)
             };
-        BufchrFast3 {haystack: haystack, needle0: needle0, needle1: needle1, needle2: needle2,
-            position: 0, cache1: 0, cache2: 0, cb_bufchrfast3: cb_bufchrfast3,
+        BufchrCSV {haystack: haystack, needle0: needle0,
+            position: 0, cache1: 0, cache2: 0, cb_bufchr_csv: cb_bufchr_csv,
             align_pos: 0, vector_end_ptr: vector_end_ptr,
         }
     }
 }
-impl<'a> Iterator for BufchrFast3<'a> {
+impl<'a> Iterator for BufchrCSV<'a> {
     type Item = usize;
 
     /// The needle position is returned. If there is no needle, None is returned.
@@ -439,8 +437,8 @@ impl<'a> Iterator for BufchrFast3<'a> {
         }
         let position;
         unsafe{
-            let (position_, cache1, cache2) = (self.cb_bufchrfast3)(
-                new_haystack, self.needle0, self.needle1, self.needle2, self.vector_end_ptr);
+            let (position_, cache1, cache2) = (self.cb_bufchr_csv)(
+                new_haystack, self.needle0, self.vector_end_ptr);
             position = position_;
             self.cache1 = cache1;
             self.cache2 = cache2;
