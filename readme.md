@@ -20,7 +20,7 @@
 * only one type of needle
 
 ```
-let haystack = b"a1,b11,c111,d1111,e11111";
+let haystack = b"a11,b11,c111,d1111,e11111";
 let needle = b',';
 let mut bf = Bufchr::new(haystack, needle);
 assert_eq!(bf.next(), Some(3));
@@ -33,7 +33,7 @@ assert_eq!(bf.next(), None);
 * only 2 types of needles
 
 ```
-let haystack = b"a1,b11,c111,d1111,e11111\n";
+let haystack = b"a11,b11,c111,d1111,e11111\n";
 let n1 = b',';
 let n2 = b'\n';
 let mut bf = Bufchr2::new(haystack, n1, n2);
@@ -48,11 +48,29 @@ assert_eq!(bf.next(), None);
 * only 3 types of needles
 
 ```
-let haystack = b"a1,\"b11\",c111,d1111,e11111\n";
+let haystack = b"a11,\"b11\",c111,d1111,e11111\n";
 let n1 = b',';
 let n2 = b'\n';
 let n3 = b'"';
 let mut bf = Bufchr3::new(haystack, n1, n2, n3);
+assert_eq!(bf.next(), Some(3));
+assert_eq!(bf.next(), Some(4));
+assert_eq!(bf.next(), Some(8));
+assert_eq!(bf.next(), Some(9));
+assert_eq!(bf.next(), Some(14));
+assert_eq!(bf.next(), Some(20));
+assert_eq!(bf.next(), Some(27));
+assert_eq!(bf.next(), None);
+```
+
+* CSV parsing only function
+  * 32 byte memory alignment is required.
+  * Only the column delimiter can be passed as an argument.
+
+```
+let haystack = b"a11,\"b11\",c111,d1111,e11111\n";
+let n1 = b',';
+let mut bf = BufchrCSV::new(haystack, n1);
 assert_eq!(bf.next(), Some(3));
 assert_eq!(bf.next(), Some(4));
 assert_eq!(bf.next(), Some(8));
